@@ -1,152 +1,91 @@
-import tkinter
-from tkinter import *
-from tkinter import ttk
-from PIL import Image, ImageTk
-import mysql.connector
-from datetime import datetime
-import requests
-from io import BytesIO
-import threading
+from flask import Flask, render_template, request, redirect, url_for, session
 
-conn = mysql.connector.connect(host="50.6.18.240",
-                                 user="ukjirumy_er_app",
-                                 password="dbPa$$Capstone26",
-                                 database="ukjirumy_ElevateRetail")
+app = Flask(__name__)
+app.secret_key = "elevate-retail-secret-key"
 
-cursor = conn.cursor()
+#home route (sends straight to cart poage right now)
+@app.route("/")
+def home():
+    return redirect(url_for("cart"))
 
-if (conn.is_connected()):
-        print("Connection Successful!")
-else:
-        print("Connection Failed.")
+#cart page route
+@app.route("/cart")
+def cart():
+    if "cart" not in session: #temp data
+        session["cart"] = [
+            {
+                "name": "RJ Flat Screen TV",
+                "description": "A sleek flat screen TV for your home entertainment setup",
+                "price": 199.99,
+                "image": "https://images.pexels.com/photos/28195650/pexels-photo-28195650.jpeg",
+                "quantity": 2
+            },
+            {
+                "name": "VR Headset",
+                "description": "A headset that let's you experience VR worlds",
+                "price": 299.99,
+                "image": "https://images.pexels.com/photos/14785828/pexels-photo-14785828.jpeg",
+                "quantity": 1
+            }
+        ]
 
+    cart_items = session.get("cart", []) #gets cart items
+    subtotal = sum(item["price"] * item["quantity"] for item in cart_items) #subtotal
 
-def getProducts():
-        cursor.execute(""" SELECT Product.Product_Name, Product.Product_Description, Product_Category.Category_Name, Inventory.Quantity, Inventory.Unit_Price, Product.Image_URL
-        FROM Product
-        INNER JOIN Inventory
-        ON Product.Product_ID = Inventory.Product_ID
-        INNER JOIN Product_Category
-        ON Product.Category_ID = Product_Category.Category_ID 
-        """)
-        return cursor.fetchall()
-IMG_WIDTH = 120
-IMG_HEIGHT = 90
+    tax_rate = 0.07 #sales tax
+    sales_tax = subtotal * tax_rate
 
-def load_Image_async(url, label, size=(IMG_WIDTH,IMG_HEIGHT)):
-    def fetch():
-        try:
-            response = requests.get(url, timeout=5)
-            img = Image.open(BytesIO(response.content)).resize(size)
-            photo = ImageTk.PhotoImage(img)
+    shipping = 0.00 #temp shipping (waiting for infor from shipping team on prices)
+    total = subtotal + sales_tax + shipping #final total
 
-            label.after(0, lambda: update_label(label, photo))
-        except Exception as e:
-            print(f"Failed to load image: {e}")
-            return None
-    threading.Thread(target=fetch, daemon=True).start()
-
-def update_label(label, photo):
-    try:
-        if label.winfo_exists():
-            label.config(image=photo)
-            label.image = photo
-    except tkinter.TclError:
-        pass
-
-def create_product_grid(parent, products):
-    for widget in parent.winfo_children():
-        widget.destroy()
-
-    if not products:
-        ttk.Label(parent, text="No products found", font=("Arial", 12)).grid(row=0,column=0, pady=20)
-        return
-
-    COLUMNS = 3
-
-    for i, products in enumerate(products):
-        row = i // COLUMNS
-        col = i % COLUMNS
-
-        card = ttk.Frame(parent, borderwidth=2, relief="groove", padding=10)
-        card.grid(row=row, column=col,padx=10,pady=10)
-
-
-
-        img_label = tkinter.Label(card, bg="lightgray", width=15, height=7)
-
-
-        img_label.pack()
-
-        img_label.config(width=IMG_WIDTH, height=IMG_HEIGHT)
-        img_label.pack_propagate(False)
-
-        load_Image_async(products[5], img_label)
-
-        name_label = tkinter.Label(card, text=products[0], font=("Arial", 11, "bold"))
-        name_label.pack(pady=(8,2))
-
-        price_label = tkinter.Label(card, text=f"${products[4]:.2f}", foreground="green")
-        price_label.pack()
-def filter_products(query, all_products):
-    query= query.lower().strip()
-    if not query:
-        return all_products
-    results = []
-    for products in all_products:
-        name = str(products[0]).lower()
-        category = str(products[2]).lower()
-        if query in name or query in category:
-            results.append(products)
-
-    return results
-
-def setup_ui(root, all_products):
-    search_frame = ttk.Frame(root, padding=10)
-    search_frame.pack(fill="x")
-
-    ttk.Label(search_frame, text="Search:").pack(side="left", padx=(0,5))
-
-    search_var = tkinter.StringVar()
-    search_entry= ttk.Entry(search_frame, textvariable=search_var,width=40)
-    search_entry.pack(side="left")
-    search_entry.focus()
-
-    clear = ttk.Button(search_frame, text="X", width=3, command=lambda: search_var.set(""))
-    clear.pack(side="left",padx=5)
-
-    canvas = tkinter.Canvas(root)
-    scrollbar = ttk.Scrollbar(root, orient="vertical", command=canvas.yview)
-    scroll_frame = ttk.Frame(canvas)
-
-    scroll_frame.bind(
-        "<Configure>",
-        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+    #cart data sent to HTML template
+    return render_template(
+        "cart.html",
+        cart=cart_items,
+        subtotal=subtotal,
+        sales_tax=sales_tax,
+        shipping=shipping,
+        total=total
     )
 
-    canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
-    canvas.configure(yscrollcommand=scrollbar.set)
-    canvas.pack(side="left", fill="both", expand=True)
-    scrollbar.pack(side="right", fill="y")
+#route to item quantity update
+@app.route("/update_cart", methods=["POST"])
+def update_cart():
+    product_name = request.form["product_name"]
+    quantity = int(request.form["quantity"])
 
-    canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(-1 * (e.delta // 120), "units"))
+    cart_items = session.get("cart", []) #gets current cart
 
-    def on_search(*args):
-        query = search_var.get()
-        filtered = filter_products(query, all_products)
-        canvas.yview_moveto(0)
-        create_product_grid(scroll_frame, filtered)
+    #finds matching item and updates
+    for item in cart_items:
+        if item["name"] == product_name:
+            if quantity > 0:
+                item["quantity"] = quantity
+            else:
+                cart_items.remove(item)
+            break
 
-    search_var.trace_add("write", on_search)
+    session["cart"] = cart_items #saves updated cart
+    return redirect(url_for("cart")) #back to cart page
 
-    create_product_grid(scroll_frame, all_products)
+#route for completely removing item
+@app.route("/remove_from_cart", methods=["POST"])
+def remove_from_cart():
+    product_name = request.form["product_name"] #get product
+    cart_items = session.get("cart", []) #current cart
 
-root = Tk()
-root.title=("Retail POS")
-root.geometry("800x600")
+    cart_items = [item for item in cart_items if item["name"] != product_name] #keeps all but removed
 
-inventory = getProducts()
+    #save and return
+    session["cart"] = cart_items
+    return redirect(url_for("cart"))
 
-setup_ui(root, inventory)
+#route to clear cart and reload
+@app.route("/clear_cart")
+def clear_cart():
+    session.pop("cart", None) #removes cart session
+    return redirect(url_for("cart")) #redirects back to cart page
 
-root.mainloop()
+
+if __name__ == "__main__":
+    app.run(debug=True)
