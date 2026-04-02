@@ -1,0 +1,67 @@
+from flask import Flask, render_template, request, redirect, url_for, session
+import mysql.connector
+from cart import cart_bp
+import atexit
+
+home = Flask(__name__)
+home.secret_key = "elevate-retail-secret-key"
+home.register_blueprint(cart_bp)
+
+conn = mysql.connector.connect(host="50.6.18.240",
+                               user="ukjirumy_er_app",
+                               password="dbPa$$Capstone26",
+                               database="ukjirumy_ElevateRetail")
+
+cursor = conn.cursor()
+
+if conn.is_connected():
+    print("Connection Successful!")
+else:
+    print("Connection Failed.")
+
+
+def get_products():
+    cursor.execute(""" SELECT Product.Product_Name, Product.Product_Description, Product_Category.Category_Name, Inventory.Unit_Price, Product.Image_URL
+        FROM Product
+        INNER JOIN Inventory
+        ON Product.Product_ID = Inventory.Product_ID
+        INNER JOIN Product_Category
+        ON Product.Category_ID = Product_Category.Category_ID 
+        """)
+    sql_products = cursor.fetchall()
+    cursor.close()
+    return_products = []
+
+    for item in sql_products:
+        return_products.append({
+            "name": item[0],
+            "description": item[1],
+            "price": item[3],
+            "image": item[4],
+        })
+    return return_products
+
+
+@home.route("/")
+def home_page():
+    session.clear()
+    if "products" not in session or not session["products"]:
+        session["products"] = get_products()
+
+    products = session.get("products", [])
+    return render_template(
+        "home.html",
+        products=products
+    )
+
+
+def cleanup():
+    if conn.is_connected():
+        conn.close()
+        if conn.is_connected() is False:
+            print("Connection Closed")
+atexit.register(cleanup)
+
+if __name__ == "__main__":
+    home.run(debug=True)
+
