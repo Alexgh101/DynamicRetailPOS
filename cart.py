@@ -10,22 +10,7 @@ cart_bp.secret_key = "elevate-retail-secret-key"
 @cart_bp.route("/cart")
 def cart():
     if "cart" not in session:  # temp data
-        session["cart"] = [
-            {
-                "name": "RJ Flat Screen TV",
-                "description": "A sleek flat screen TV for your home entertainment setup",
-                "price": 199.99,
-                "image": "https://images.pexels.com/photos/28195650/pexels-photo-28195650.jpeg",
-                "quantity": 2
-            },
-            {
-                "name": "VR Headset",
-                "description": "A headset that let's you experience VR worlds",
-                "price": 299.99,
-                "image": "https://images.pexels.com/photos/14785828/pexels-photo-14785828.jpeg",
-                "quantity": 1
-            }
-        ]
+        session["cart"] = []
 
     cart_items = session.get("cart", [])  # gets cart items
     subtotal = sum(item["price"] * item["quantity"] for item in cart_items)  # subtotal
@@ -65,7 +50,7 @@ def update_cart():
             break
 
     session["cart"] = cart_items  # saves updated cart
-    return redirect(url_for("cart"))  # back to cart page
+    return redirect(url_for("cart.cart"))  # back to cart page
 
 
 # route for completely removing item
@@ -78,14 +63,14 @@ def remove_from_cart():
 
     # save and return
     session["cart"] = cart_items
-    return redirect(url_for("cart"))
+    return redirect(url_for("cart.cart"))
 
 
 # route to clear cart and reload
 @cart_bp.route("/clear_cart")
 def clear_cart():
     session.pop("cart", None)  # removes cart session
-    return redirect(url_for("cart"))  # redirects back to cart page
+    return redirect(url_for("cart.cart"))  # redirects back to cart page
 
 @cart_bp.route("/payment")
 def payment():

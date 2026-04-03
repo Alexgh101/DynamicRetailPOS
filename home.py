@@ -21,7 +21,7 @@ else:
 
 
 def get_products():
-    cursor.execute(""" SELECT Product.Product_Name, Product.Product_Description, Product_Category.Category_Name, Inventory.Unit_Price, Product.Image_URL
+    cursor.execute(""" SELECT Product.Product_Name, Product.Product_Description, Product_Category.Category_Name, Inventory.Unit_Price, Product.Image_URL, Inventory.Quantity
         FROM Product
         INNER JOIN Inventory
         ON Product.Product_ID = Inventory.Product_ID
@@ -29,14 +29,14 @@ def get_products():
         ON Product.Category_ID = Product_Category.Category_ID 
         """)
     sql_products = cursor.fetchall()
-    cursor.close()
     return_products = []
 
     for item in sql_products:
         return_products.append({
             "name": item[0],
             "description": item[1],
-            "price": item[3],
+            "price": float(item[3]),
+            "quantity": item[5],
             "image": item[4],
         })
     return return_products
@@ -44,7 +44,6 @@ def get_products():
 
 @home.route("/")
 def home_page():
-    session.clear()
     if "products" not in session or not session["products"]:
         session["products"] = get_products()
 
@@ -53,6 +52,32 @@ def home_page():
         "home.html",
         products=products
     )
+
+@home.route("/add_cart", methods=["POST"])
+def add_to_cart():
+    if "cart" not in session:  # temp data
+        session["cart"] = []
+
+    cart = session.get("cart", [])
+
+    product = {
+        "name": request.form.get("name"),
+        "description": request.form.get("description"),
+        "price": float(request.form.get("price")),
+        "image": request.form.get("image"),
+        "quantity": 1
+    }
+
+    for item in cart:
+        if item["name"] == product["name"]:
+            item["quantity"] += 1
+            session["cart"] = cart
+            session.modified = True
+            return redirect(url_for("cart.cart"))
+    cart.append(product)
+    session["cart"] = cart
+    session.modified = True
+    return redirect(url_for("home_page"))
 
 
 def cleanup():
