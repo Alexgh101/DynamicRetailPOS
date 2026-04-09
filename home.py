@@ -54,10 +54,10 @@ def home_page():
         session["products"] = get_products()
     products = session.get("products", [])
     cart = session.get("cart", [])
-    query = request.args.get("q", "").lower()
+    query = request.args.get("q", "").strip().lower()
 
     if query:
-        filtered_products = [item for item in session["products"] if query in item["name"]]
+        filtered_products = [item for item in session["products"] if query in item["name"].lower()]
     else:
         filtered_products = products
 
