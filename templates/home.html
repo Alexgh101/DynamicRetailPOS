@@ -10,12 +10,12 @@
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background: #e8d8c3;
+    background: #13293D;
     }
 
     /*header*/
     header {
-    background: #f7f7f7;
+    background: #13293D;
     color: black;
     padding: 20px;
     text-align: center;
@@ -38,7 +38,7 @@
 
     /*box around items*/
     .items {
-    background: #f9f9f9;
+    background: #A18276;
     padding: 20px;
     border-radius: 12px;
     border: 1px solid #d6d6d6;
@@ -58,7 +58,7 @@
     text-align:center;
     padding: 15px;
     margin-bottom: 15px;
-    background: white;
+    background: #EBEBD3;
     border: 1px solid #dddddd;
     border-radius: 10px;
     }
@@ -92,15 +92,15 @@
     margin-bottom: 10px;
     }
     .add-cart{
-    color: #ffffff;
-    background: #187633;
+    color: #EBEBD3;
+    background: #22466a;
     border: none;
     border-radius: 5px 5px 5px 5px;
     outline: none;
     cursor: pointer;
     }
     .add-cart:hover{
-        background: #0D421BFF;
+        background: #13293D;
     }
     .cart-wrapper {
         display: flex;
@@ -118,8 +118,7 @@
     height: 40px;
     display: grid;
     place-items: center;
-    color: #ffffff;
-    background: #187633;
+    background: #EBEBD3;
     border: none;
     border-radius: 5px 0 0 5px;
     outline: none;
@@ -127,7 +126,7 @@
     z-index: 100;
 }
     .cart-side-toggle:hover {
-        background:#0D421BFF
+        background: #203007
     }
     .cart-side-toggle.panel-open {
     right: 240px; /* match your side panel width */
@@ -143,7 +142,7 @@
     height: 100vh;
     padding: 20px;
     color: #000000;
-    background: #f7f7f7;
+    background: #A18276;
     box-shadow: -2px 0 10px rgba(0,0,0,0.2);
     overflow-y: auto;
     z-index: 99;
@@ -159,13 +158,13 @@
     padding: 8px 16px;
     box-shadow: -2px 0 10px rgba(0,0,0,0.2);
     color: #FFFFFF;
-    background: #007bff;
+    background: #13293D;
     border: none;
     border-radius: 5px;
     cursor: pointer;
 }
     .proceed-cart:hover{
-        background: #0048ff;
+        background: #22466a;
     }
     .cart-side-tile{
     display: flex;
@@ -174,7 +173,7 @@
     text-align:center;
     padding: 5px;
     margin-bottom: 5px;
-    background: white;
+    background: #EBEBD3;
     border: 1px solid #dddddd;
     border-radius: 10px;
     }
@@ -184,11 +183,16 @@
     object-fit: cover;
     border-radius: 8px;
     }
+    .logo{
+        background: #433E3F;
+        border-radius: 50px 50px 50px 50px;
+
+    }
     </style>
 </head>
 <body>
 <header>
-    <img src="{{ url_for('static', filename='elevate_retail_logo_4.png') }}" alt="Elevate Retail Logo" class="logo">
+    <img class="logo" src="{{ url_for('static', filename='elevate_retail_logo_4.png') }}" alt="Elevate Retail Logo" class="logo">
 </header>
 <button class="cart-side-toggle" type="button">
         <span class="material-symbols-outlined cart-icon">
@@ -198,7 +202,7 @@
 <div class="cart-wrapper">
     <div class="cart-main">
 <div class="items-container">
-    <h2>Available Products</h2>
+    <h2 style="color:#FFFFFF">Available Products</h2>
     <form action="/" method="GET">
     <input type="text" name="q" placeholder="Search items..." value="{{ request.args.get('q', '') }}">
     <button type="submit">Search</button>
