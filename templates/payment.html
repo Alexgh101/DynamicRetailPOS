@@ -87,6 +87,34 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
+        /*added order summary*/
+        .summary-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .summary-box h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .summary-total {
+            font-weight: bold;
+            font-size: 18px;
+            border-top: 1px solid #ccc;
+            padding-top: 12px;
+            margin-top: 12px;
+        }
     </style>
 </head>
 
@@ -99,9 +127,9 @@
 
 
     <div class="payment-container">
-        <form>
+        <form action="{{ url_for('cart.order_confirmation') }}" method="get"> <!--sends payment form to order confirmation page-->
             <label for="payment-method">Select Payment Method</label>
-            <select id="payment-method" onchange="toggleFields()">
+            <select id="payment-method" name="payment_method" onchange="toggleFields()"><!--payment method dropdown; name for flask value-->
                 <option value="credit-card">Credit Card</option>
                 <option value="debit-card">Debit Card</option>
                 <option value="apple-pay">Apple Pay</option>
@@ -112,45 +140,72 @@
             <!-- Email field for Apple Pay / Google Pay / PayPal -->
             <div id="email-field" class="email-field">
                 <label for="email">Account Email</label>
-                <input type="email" id="email" placeholder="example@email.com">
+                <input type="email" id="email" name="email" placeholder="example@email.com"><!--added name for flask-->
             </div>
 
             <!-- Card Details Section -->
             <div id="card-fields" class="card-fields">
 
                 <label for="card-number">Card Number</label>
-                <input type="tel" id="card-number" name="card-number" maxlength="19" placeholder="0000 0000 0000 0000"
+                <input type="tel" id="card-number" name="card_number" maxlength="19" placeholder="0000 0000 0000 0000"
                        inputmode="numeric"
                        pattern="[\d ]{13,19}"
                        autocomplete="cc-number"
-                       required
-                        oninput="formatCardNumber(this)">
+                       oninput="formatCardNumber(this)">
 
                 <label for="card-holder">Card Holder Name</label>
-                <input type="text" id="card-holder"
-                    oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')">
+                <input type="text" id="card-holder" name="card_holder"
+                       oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"><!--added name-->
 
                 <div class="row">
                     <div class="half">
                         <label for="card-expiration">Expiration Date</label>
-                        <input type="text" id="card-expiration" placeholder="MM/YY" maxlength="5"
-                            oninput="formatExpiry(this)">
+                        <input type="text" id="card-expiration" name="card_expiration"
+                               placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)"><!--added name-->
                     </div>
 
                     <div class="half">
                         <label for="card-cvv">CVV</label>
-                        <input type="text" id="card-cvv" maxlength="4" placeholder="0000"
-                            oninput="this.value = this.value.replace(/\D/g, '').slice(0, 4)">
+                        <input type="text" id="card-cvv" name="card_cvv" maxlength="4" placeholder="0000"
+                               oninput="this.value = this.value.replace(/\D/g, '').slice(0, 4)"><!--added name-->
                     </div>
                 </div>
             </div>
 
             <div class="buttons">
                 <button type="submit" class="btn-confirm">Confirm Payment</button>
-                <button type="button" class="btn-back" onclick="history.back()">Go Back</button>
+                <a href="{{ url_for('cart.cart') }}" class="btn-back" style="text-decoration:none; display:inline-block;">Back to Cart</a><!--fix to route back to cart-->
             </div>
         </form>
-    </div>
+            <div class="summary-box">
+                <h3>Order Summary</h3>
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>${{ "%.2f"|format(subtotal) }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Discount</span>
+                    <span>-${{ "%.2f"|format(discount) }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Sales Tax</span>
+                    <span>${{ "%.2f"|format(sales_tax) }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>${{ "%.2f"|format(shipping) }}</span>
+                </div>
+
+                <div class="summary-row summary-total">
+                    <span>Total</span>
+                    <span>${{ "%.2f"|format(total) }}</span>
+                </div>
+            </div>
+        </div>
 
     <script>
         function toggleFields() {
@@ -158,11 +213,23 @@
             const cardFields = document.getElementById("card-fields");
             const emailField = document.getElementById("email-field");
 
+            const cardNumber = document.getElementById("card-number");
+            const cardHolder = document.getElementById("card-holder");
+            const cardExpiration = document.getElementById("card-expiration");
+            const cardCvv = document.getElementById("card-cvv");
+            const email = document.getElementById("email");
+
             const isCard = (method === "credit-card" || method === "debit-card");
             const isEmail = (method === "apple-pay" || method === "google-pay" || method === "paypal");
 
             cardFields.style.display = isCard ? "block" : "none";
             emailField.style.display = isEmail ? "block" : "none";
+
+            cardNumber.required = isCard;
+            cardHolder.required = isCard;
+            cardExpiration.required = isCard;
+            cardCvv.required = isCard;
+            email.required = isEmail;
         }
 
         function formatCardNumber(input) {

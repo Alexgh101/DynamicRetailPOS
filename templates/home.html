@@ -192,7 +192,7 @@
 </head>
 <body>
 <header>
-    <img class="logo" src="{{ url_for('static', filename='elevate_retail_logo_4.png') }}" alt="Elevate Retail Logo" class="logo">
+    <img class="logo" src="{{ url_for('static', filename='elevate_retail_logo_4.png') }}" alt="Elevate Retail Logo">
 </header>
 <button class="cart-side-toggle" type="button">
         <span class="material-symbols-outlined cart-icon">
@@ -215,7 +215,7 @@
                 <div class="item-details">
                     <h3>{{ item.name }}</h3>
                     <p>{{item.description}}</p>
-                    <p1>{{item.quantity}} in stock</p1>
+                    <p>{{item.quantity}} in stock</p>
                     <div class="price">${{ "%.2f"|format(item.price | float) }} each</div>
                     <form action="{{ url_for('add_to_cart') }}" method="POST">
                         <input type="hidden" name="name" value="{{ item.name }}">
@@ -245,7 +245,7 @@
         {% else %}
             <p class="empty-cart">Nothing is Available.</p>
         {% endif %}
-        <form action="/cart">
+        <form action="{{ url_for('cart.cart') }}">
         <button class="proceed-cart" type="submit">Proceed to Cart</button>
         </form>
     </div>

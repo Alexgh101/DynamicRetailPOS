@@ -4,31 +4,59 @@ cart_bp = Blueprint("cart", __name__)
 cart_bp.secret_key = "elevate-retail-secret-key"
 
 
-# home route (sends straight to cart page right now)
+#temp promo codes for testing
+PROMO_CODES = {
+    "SAVE10": 0.10,
+    "SAVE20": 0.20,
+    "NEW5": 5.00
+}
+
+#calculates cart totals (promo, discount, tax, shipping)
+def calculate_cart_totals(cart_items, promo_code=None):
+    subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
+
+    discount = 0.00
+    if promo_code:
+        promo_code = promo_code.upper().strip()
+        promo_value = PROMO_CODES.get(promo_code)
+
+        if isinstance(promo_value, float) and promo_value < 1:
+            discount = subtotal * promo_value
+        elif isinstance(promo_value, (int, float)):
+            discount = float(promo_value)
+
+    discounted_subtotal = max(subtotal - discount, 0)
+    tax_rate = 0.07
+    sales_tax = discounted_subtotal * tax_rate
+    shipping = 0.00
+    total = discounted_subtotal + sales_tax + shipping
+
+    return subtotal, discount, sales_tax, shipping, total
 
 # cart page route
 @cart_bp.route("/cart")
 def cart():
-    if "cart" not in session:  # temp data
+    if "cart" not in session:  #temp data
         session["cart"] = []
 
-    cart_items = session.get("cart", [])  # gets cart items
-    subtotal = sum(item["price"] * item["quantity"] for item in cart_items)  # subtotal
+    promo_code = session.get("promo_code", "")
+    cart_items = session.get("cart", [])
 
-    tax_rate = 0.07  # sales tax
-    sales_tax = subtotal * tax_rate
-
-    shipping = 0.00  # temp shipping (waiting for infor from shipping team on prices)
-    total = subtotal + sales_tax + shipping  # final total
+    subtotal, discount, sales_tax, shipping, total = calculate_cart_totals(
+        cart_items,
+        promo_code
+    )
 
     # cart data sent to HTML template
     return render_template(
         "cart.html",
         cart=cart_items,
         subtotal=subtotal,
+        discount=discount,
         sales_tax=sales_tax,
         shipping=shipping,
-        total=total
+        total=total,
+        promo_code=promo_code
     )
 
 
@@ -52,6 +80,17 @@ def update_cart():
     session["cart"] = cart_items  # saves updated cart
     return redirect(url_for("cart.cart"))  # back to cart page
 
+#route for promo
+@cart_bp.route("/apply_promo", methods=["POST"])
+def apply_promo():
+    promo_code = request.form.get("promo_code", "").strip().upper()
+
+    if promo_code in PROMO_CODES:
+        session["promo_code"] = promo_code
+    else:
+        session["promo_code"] = ""
+
+    return redirect(url_for("cart.cart"))
 
 # route for completely removing item
 @cart_bp.route("/remove_from_cart", methods=["POST"])
@@ -69,37 +108,41 @@ def remove_from_cart():
 # route to clear cart and reload
 @cart_bp.route("/clear_cart")
 def clear_cart():
-    session.pop("cart", None)  # removes cart session
-    return redirect(url_for("cart.cart"))  # redirects back to cart page
+    session.pop("cart", None)
+    session.pop("promo_code", None)
+    return redirect(url_for("cart.cart"))
 
 @cart_bp.route("/payment")
 def payment():
     cart_items = session.get("cart", [])
+    promo_code = session.get("promo_code", "")
 
-    subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
-    tax_rate = 0.07
-    sales_tax = subtotal * tax_rate
-    shipping = 0.00
-    total = subtotal + sales_tax + shipping
+    subtotal, discount, sales_tax, shipping, total = calculate_cart_totals(
+        cart_items,
+        promo_code
+    )
 
     return render_template(
         "payment.html",
         cart=cart_items,
         subtotal=subtotal,
+        discount=discount,
         sales_tax=sales_tax,
         shipping=shipping,
-        total=total
+        total=total,
+        promo_code=promo_code
     )
 
 @cart_bp.route("/order_confirmation")
 def order_confirmation():
     payment_method = request.args.get("payment_method", "N/A")
+    promo_code = session.get("promo_code", "")
     cart_items = session.get("cart", [])
 
-    subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
-    discount = 0.00
-    tax = subtotal * 0.07
-    total_paid = subtotal - discount + tax
+    subtotal, discount, sales_tax, shipping, total_paid = calculate_cart_totals(
+        cart_items,
+        promo_code
+    )
 
     order = {
         "order_number": "ER123456",
@@ -108,7 +151,7 @@ def order_confirmation():
         "payment_method": payment_method,
         "subtotal": subtotal,
         "discount": discount,
-        "tax": tax,
+        "tax": sales_tax,
         "total_paid": total_paid
     }
 

@@ -250,9 +250,26 @@
     <aside class="cart-summary">
         <h2>Order Summary</h2>
 
+        <!--promo code form-->
+        <form action="{{ url_for('cart.apply_promo') }}" method="POST" style="margin-top: 15px;">
+            <label for="promo_code"><strong>Promo Code</strong></label>
+            <input type="text"
+           id="promo_code"
+           name="promo_code"
+           value="{{ promo_code }}"
+           placeholder="Enter code"
+           style="width: 100%; padding: 10px; margin-top: 8px; box-sizing: border-box;">
+            <button type="submit" class="btn btn-update" style="margin-top: 10px;">Apply Code</button>
+        </form>
+
         <div class="summary-row">
             <span>Subtotal</span>
             <span>${{ "%.2f"|format(subtotal) }}</span>
+        </div>
+
+        <div class="summary-row">
+            <span>Discount</span>
+            <span>-${{ "%.2f"|format(discount) }}</span>
         </div>
 
         <div class="summary-row">
@@ -276,7 +293,7 @@
         Proceed to Checkout
         </a>
 
-        <a href="/"
+        <a href="{{ url_for('home_page') }}"
            class="back-btn">
             Back to Products
         </a>

@@ -11,12 +11,19 @@ home = Flask(__name__)
 home.secret_key = "elevate-retail-secret-key"
 home.register_blueprint(cart_bp)
 load_dotenv()
-host = os.getenv("HOST")
-user= os.getenv("USER")
-passw = os.getenv("PASS")
-db = os.getenv("DATA")
+host = os.getenv("DB_HOST")
+port = os.getenv("DB_PORT", "3306")
+user = os.getenv("DB_USER")
+passw = os.getenv("DB_PASS")
+db = os.getenv("DB_NAME")
 
-conn = mysql.connector.connect(host=host, user=user, password=passw, database=db)
+conn = mysql.connector.connect(
+    host=host,
+    port=int(port),
+    user=user,
+    password=passw,
+    database=db
+)
 
 cursor = conn.cursor()
 
@@ -78,7 +85,7 @@ def add_to_cart():
     product = {
         "name": request.form.get("name"),
         "description": request.form.get("description"),
-        "price": float(request.form.get("price")),
+        "price": float(request.form.get("price", 0)),
         "image": request.form.get("image"),
         "quantity": 1
     }
