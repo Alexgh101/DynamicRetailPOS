@@ -51,7 +51,7 @@ def register():
 
         cursor.execute("""
             INSERT INTO Customer (First_Name, Last_Name, Email, Phone, Membership_Level)
-            VALUES (%s, %s, %s, %s, 'Standard')
+            VALUES (%s, %s, %s, %s, 'Bronze')
         """, (first, last, email, phone or None))
         conn.commit()
 
