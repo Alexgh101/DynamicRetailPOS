@@ -356,6 +356,15 @@ def order_confirmation():
                 datetime.now()
             ))
 
+            cursor.execute("""
+                UPDATE Inventory
+                SET Quantity = Quantity - %s
+                WHERE Inventory_ID = %s
+            """, (
+                item["quantity"],
+                item["inventory_id"]
+            ))
+
             order_items.append({
                 "image_url": item["image"],
                 "product_name": item["name"],
