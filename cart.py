@@ -10,7 +10,7 @@ cart_bp.secret_key = "elevate-retail-secret-key"
 PROMO_CODES = {
     "SAVE10": 0.10,
     "SAVE20": 0.20,
-    "NEW5": 5.00
+    "NEW5": 0.05
 }
 
 MEMBERSHIP_PRICES = {
@@ -127,6 +127,68 @@ def calculate_cart_totals(cart_items, promo_code=None, membership_rate=0.0, memb
     }
 
 
+# Gets recommended products based on most purchased items
+def get_recommendations(cart_items, limit=3):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        cart_inventory_ids = [
+            item["inventory_id"] for item in cart_items
+            if "inventory_id" in item
+        ]
+
+        query = """
+            SELECT
+                i.Inventory_ID,
+                p.Product_Name,
+                p.Product_Description,
+                p.Image_URL,
+                i.Unit_Price,
+                i.Quantity,
+                COALESCE(SUM(oi.Quantity), 0) AS TotalPurchased
+            FROM Inventory i
+            JOIN Product p
+                ON i.Product_ID = p.Product_ID
+            LEFT JOIN Order_Item oi
+                ON i.Inventory_ID = oi.Inventory_ID
+            WHERE i.Quantity > 0
+        """
+
+        params = []
+
+        if cart_inventory_ids:
+            placeholders = ", ".join(["%s"] * len(cart_inventory_ids))
+            query += f" AND i.Inventory_ID NOT IN ({placeholders}) "
+            params.extend(cart_inventory_ids)
+
+        query += """
+            GROUP BY
+                i.Inventory_ID,
+                p.Product_Name,
+                p.Product_Description,
+                p.Image_URL,
+                i.Unit_Price,
+                i.Quantity
+            ORDER BY TotalPurchased DESC, p.Product_Name ASC
+            LIMIT %s
+        """
+        params.append(limit)
+
+        cursor.execute(query, tuple(params))
+        recommendations = cursor.fetchall()
+
+        return recommendations
+
+    except mysql.connector.Error as err:
+        print(f"Recommendation query error: {err}")
+        return []
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
 # Cart page route
 @cart_bp.route("/cart")
 @login_required
@@ -150,6 +212,8 @@ def cart():
         membership_upgrade_cost
     )
 
+    recommendations = get_recommendations(cart_items)
+
     return render_template(
         "cart.html",
         cart=cart_items,
@@ -163,7 +227,8 @@ def cart():
         promo_code=promo_code,
         current_membership_level=current_level,
         selected_membership_level=selected_level,
-        membership_prices=MEMBERSHIP_PRICES
+        membership_prices=MEMBERSHIP_PRICES,
+        recommendations=recommendations
     )
 
 
@@ -226,6 +291,70 @@ def remove_from_cart():
     cart_items = [item for item in cart_items if item["name"] != product_name]
 
     session["cart"] = cart_items
+    return redirect(url_for("cart.cart"))
+
+
+# Route to add recommended item to cart
+@cart_bp.route("/add_recommended_to_cart", methods=["POST"])
+@login_required
+def add_recommended_to_cart():
+    inventory_id = request.form.get("product_id")
+
+    if not inventory_id:
+        return redirect(url_for("cart.cart"))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        cursor.execute("""
+            SELECT
+                i.Inventory_ID,
+                p.Product_Name,
+                p.Product_Description,
+                p.Image_URL,
+                i.Unit_Price,
+                i.Quantity
+            FROM Inventory i
+            JOIN Product p
+                ON i.Product_ID = p.Product_ID
+            WHERE i.Inventory_ID = %s
+              AND i.Quantity > 0
+        """, (inventory_id,))
+
+        product = cursor.fetchone()
+
+        if not product:
+            return redirect(url_for("cart.cart"))
+
+        cart_items = session.get("cart", [])
+        found = False
+
+        for item in cart_items:
+            if item.get("inventory_id") == product["Inventory_ID"]:
+                item["quantity"] += 1
+                found = True
+                break
+
+        if not found:
+            cart_items.append({
+                "inventory_id": product["Inventory_ID"],
+                "name": product["Product_Name"],
+                "description": product["Product_Description"],
+                "price": float(product["Unit_Price"]),
+                "quantity": 1,
+                "image": product["Image_URL"]
+            })
+
+        session["cart"] = cart_items
+
+    except mysql.connector.Error as err:
+        print(f"Add recommended item error: {err}")
+
+    finally:
+        cursor.close()
+        conn.close()
+
     return redirect(url_for("cart.cart"))
 
 

@@ -5,22 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Cart</title>
     <style>
+        /* page background and default text style */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background: #2E3440;
         }
+
+        /* page header */
         header {
             background: #2E3440;
             color: #ECEFF4;
             padding: 20px;
             text-align: center;
         }
+
+        /* header title */
         header h2 {
             color: #ECEFF4;
             margin: 8px 0 0;
         }
+
+        /* site logo */
         .logo {
             max-width: 240px;
             height: auto;
@@ -29,6 +36,8 @@
             background: #3B4252;
             border-radius: 50px;
         }
+
+        /* main cart page layout */
         .cart-container {
             width: 90%;
             max-width: 1100px;
@@ -37,6 +46,8 @@
             grid-template-columns: 2fr 1fr;
             gap: 25px;
         }
+
+        /* cart items section */
         .cart-items {
             background: #3B4252;
             padding: 20px;
@@ -44,10 +55,14 @@
             border: 1px solid #4C566A;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
+
+        /* cart items heading */
         .cart-items h2 {
             color: #ECEFF4;
             margin-top: 0;
         }
+
+        /* order summary section */
         .cart-summary {
             background: #3B4252;
             padding: 20px;
@@ -55,10 +70,14 @@
             border: 1px solid #4C566A;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
+
+        /* order summary heading */
         .cart-summary h2 {
             color: #ECEFF4;
             margin-top: 0;
         }
+
+        /* individual cart item card */
         .cart-item {
             display: flex;
             gap: 15px;
@@ -69,38 +88,56 @@
             border: 1px solid #4C566A;
             border-radius: 10px;
         }
+
+        /* cart item image */
         .cart-item img {
             width: 120px;
             height: 90px;
             object-fit: cover;
             border-radius: 8px;
         }
-        .item-details { flex: 1; }
+
+        /* cart item details container */
+        .item-details {
+            flex: 1;
+        }
+
+        /* cart item name */
         .item-details h3 {
             margin: 0 0 8px;
             font-size: 18px;
             color: #ECEFF4;
         }
+
+        /* cart item description */
         .item-details p {
             margin: 0 0 10px;
             color: #D8DEE9;
             font-size: 14px;
         }
+
+        /* item price text */
         .price {
             font-weight: bold;
             color: #A3BE8C;
             margin-bottom: 10px;
         }
+
+        /* quantity and action buttons area */
         .item-actions {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-top: 8px;
         }
+
+        /* quantity label */
         .item-actions label {
             color: #D8DEE9;
             font-size: 14px;
         }
+
+        /* quantity input box */
         .item-actions input {
             width: 60px;
             padding: 6px;
@@ -110,9 +147,13 @@
             border-radius: 5px;
             color: #ECEFF4;
         }
+
+        /* total price on each cart item */
         .cart-item > div > strong {
             color: #ECEFF4;
         }
+
+        /* shared button style */
         .btn {
             padding: 8px 14px;
             border: none;
@@ -120,16 +161,30 @@
             cursor: pointer;
             font-weight: bold;
         }
+
+        /* update button */
         .btn-update {
             background: #5E81AC;
             color: #ECEFF4;
         }
-        .btn-update:hover { background: #81A1C1; }
+
+        /* update button hover effect */
+        .btn-update:hover {
+            background: #81A1C1;
+        }
+
+        /* remove button */
         .btn-remove {
             background: #BF616A;
             color: #ECEFF4;
         }
-        .btn-remove:hover { background: #D08770; }
+
+        /* remove button hover effect */
+        .btn-remove:hover {
+            background: #D08770;
+        }
+
+        /* summary row layout */
         .summary-row {
             display: flex;
             justify-content: space-between;
@@ -137,6 +192,8 @@
             font-size: 16px;
             color: #D8DEE9;
         }
+
+        /* total row in summary */
         .summary-total {
             font-size: 20px;
             font-weight: bold;
@@ -145,6 +202,8 @@
             padding-top: 15px;
             color: #ECEFF4;
         }
+
+        /* promo code input and membership dropdown */
         .promo-input,
         .membership-select {
             width: 100%;
@@ -156,14 +215,20 @@
             border-radius: 5px;
             color: #ECEFF4;
         }
+
+        /* promo code placeholder text */
         .promo-input::placeholder {
             color: #88C0D0;
         }
+
+        /* promo and membership labels */
         .promo-label,
         .membership-label,
         .membership-current {
             color: #D8DEE9;
         }
+
+        /* membership box section */
         .membership-box {
             margin-top: 20px;
             margin-bottom: 10px;
@@ -172,11 +237,15 @@
             border: 1px solid #4C566A;
             border-radius: 8px;
         }
+
+        /* membership box paragraph text */
         .membership-box p {
             margin: 0 0 10px;
             color: #D8DEE9;
             font-size: 14px;
         }
+
+        /* checkout and back buttons */
         .checkout-btn,
         .back-btn {
             display: block;
@@ -191,25 +260,121 @@
             text-decoration: none;
             color: #ECEFF4;
         }
+
+        /* checkout button style */
         .checkout-btn {
             margin-top: 20px;
             background: #A3BE8C;
             color: #2E3440;
             font-weight: bold;
         }
-        .checkout-btn:hover { background: #88C0D0; }
+
+        /* checkout button hover effect */
+        .checkout-btn:hover {
+            background: #88C0D0;
+        }
+
+        /* back button style */
         .back-btn {
             margin-top: 10px;
             background: #4C566A;
         }
-        .back-btn:hover { background: #5E81AC; }
+
+        /* back button hover effect */
+        .back-btn:hover {
+            background: #5E81AC;
+        }
+
+        /* empty cart message */
         .empty-cart {
             text-align: center;
             color: #D8DEE9;
             padding: 30px 0;
         }
+
+        /* popup background overlay */
+        .recommendation-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        /* main popup box */
+        .recommendation-modal-content {
+            background: #3B4252;
+            color: #ECEFF4;
+            width: 80%;
+            max-width: 900px;
+            margin: 8% auto;
+            padding: 25px;
+            border-radius: 12px;
+            position: relative;
+            text-align: center;
+            border: 1px solid #4C566A;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* close button */
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #ECEFF4;
+        }
+
+        /* recommendation card layout */
+        .recommendation-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        /* individual recommendation card */
+        .recommendation-card {
+            border: 1px solid #4C566A;
+            border-radius: 10px;
+            padding: 15px;
+            width: 220px;
+            background: #434C5E;
+        }
+
+        /* recommendation product image */
+        .recommendation-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        /* recommendation product name */
+        .recommendation-card h3 {
+            color: #ECEFF4;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        /* recommendation product price */
+        .recommendation-card p {
+            color: #D8DEE9;
+            margin-bottom: 12px;
+        }
+
+        /* responsive layout for smaller screens */
         @media (max-width: 850px) {
-            .cart-container { grid-template-columns: 1fr; }
+            .cart-container {
+                grid-template-columns: 1fr;
+            }
+
             .cart-item img {
                 width: 100%;
                 height: auto;
@@ -324,5 +489,48 @@
     </aside>
 
 </div>
+
+{% if recommendations and cart %}
+<div id="recommendationModal" class="recommendation-modal">
+    <div class="recommendation-modal-content">
+        <span class="close-btn" onclick="closeRecommendationModal()">&times;</span>
+        <h2>You might also like</h2>
+        <p>Add one of these before checkout.</p>
+
+        <div class="recommendation-grid">
+            {% for product in recommendations %}
+            <div class="recommendation-card">
+                <img src="{{ product.Image_URL }}" alt="{{ product.Product_Name }}">
+                <h3>{{ product.Product_Name }}</h3>
+                <p>${{ "%.2f"|format(product.Unit_Price) }}</p>
+
+                <form action="{{ url_for('cart.add_recommended_to_cart') }}" method="POST">
+                    <input type="hidden" name="product_id" value="{{ product.Inventory_ID }}">
+                    <button type="submit" class="btn btn-update">Add to Cart</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    /* closes popup and remembers it was already shown */
+    function closeRecommendationModal() {
+        document.getElementById("recommendationModal").style.display = "none";
+        sessionStorage.setItem("recommendationShown", "true");
+    }
+
+    /* shows popup once when the cart page loads */
+    window.onload = function () {
+        const modal = document.getElementById("recommendationModal");
+
+        if (modal && !sessionStorage.getItem("recommendationShown")) {
+            modal.style.display = "block";
+        }
+    };
+</script>
+
 </body>
 </html>
