@@ -121,6 +121,13 @@
       <p><strong>Customer:</strong> {{ order.customer_name }}</p>
       <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
 
+      <!-- ADDRESS -->
+      <h2>Shipping Address</h2>
+      <p><strong>Street:</strong> {{ order.address.street }}</p>
+      <p><strong>City:</strong> {{ order.address.city }}</p>
+      <p><strong>State:</strong> {{ order.address.state }}</p>
+      <p><strong>ZIP Code:</strong> {{ order.address.zip }}</p>
+
       <h2>Items Purchased</h2>
       {% for item in order_items %}
       <div class="product-item">

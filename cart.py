@@ -41,7 +41,7 @@ def get_membership_discount_rate(customer_id):
         LEFT JOIN Member m
             ON c.Membership_Level = m.Membership_Level
         WHERE c.Customer_ID = %s
-          AND c.Deleted_At IS NULL
+            AND c.Deleted_At IS NULL
     """, (customer_id,))
     row = cursor.fetchone()
 
@@ -68,7 +68,7 @@ def get_current_membership_level(customer_id):
         SELECT Membership_Level
         FROM Customer
         WHERE Customer_ID = %s
-          AND Deleted_At IS NULL
+            AND Deleted_At IS NULL
     """, (customer_id,))
     row = cursor.fetchone()
 
@@ -319,7 +319,7 @@ def add_recommended_to_cart():
             JOIN Product p
                 ON i.Product_ID = p.Product_ID
             WHERE i.Inventory_ID = %s
-              AND i.Quantity > 0
+                AND i.Quantity > 0
         """, (inventory_id,))
 
         product = cursor.fetchone()
@@ -367,7 +367,6 @@ def clear_cart():
     session.pop("selected_membership_level", None)
     return redirect(url_for("cart.cart"))
 
-
 @cart_bp.route("/payment")
 @login_required
 def payment():
@@ -387,6 +386,9 @@ def payment():
         membership_upgrade_cost
     )
 
+    # Load customer address
+    address = get_customer_address(current_user.id)
+
     return render_template(
         "payment.html",
         cart=cart_items,
@@ -399,9 +401,27 @@ def payment():
         total=totals["total"],
         promo_code=promo_code,
         current_membership_level=current_level,
-        selected_membership_level=selected_level
+        selected_membership_level=selected_level,
+        address=address
     )
 
+def get_customer_address(customer_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT Address_Line_1, Address_Line_2, City, State, Zip_Code, Country
+        FROM Customer_Address
+        WHERE Customer_ID = %s AND Deleted_At IS NULL
+        ORDER BY Created_At DESC
+        LIMIT 1
+    """, (customer_id,))
+
+    address = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+    return address
 
 @cart_bp.route("/order_confirmation", methods=["POST"])
 @login_required
@@ -426,6 +446,9 @@ def order_confirmation():
         membership_rate,
         membership_upgrade_cost
     )
+
+    # Load address for confirmation page
+    address = get_customer_address(current_user.id)
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -522,7 +545,7 @@ def order_confirmation():
             datetime.now()
         ))
 
-        # 4. Update customer membership level if upgraded
+        # 4. Update membership level if upgraded
         if selected_level != current_level:
             cursor.execute("""
                 UPDATE Customer
@@ -545,6 +568,7 @@ def order_confirmation():
             "total_paid": totals["total"]
         }
 
+        # Clear session
         session.pop("cart", None)
         session.pop("promo_code", None)
         session.pop("selected_membership_level", None)
@@ -552,7 +576,8 @@ def order_confirmation():
         return render_template(
             "order_confirmation.html",
             order=order,
-            order_items=order_items
+            order_items=order_items,
+            address=address
         )
 
     except mysql.connector.Error as err:
