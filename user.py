@@ -54,7 +54,7 @@ def update_profile():
 
     cursor.execute("""
         UPDATE Customer SET First_Name=%s, Last_Name=%s, Email=%s, Phone=%s,
-        Updated_At=GETUTCDATE()
+        Updated_At=CURDATE()
         WHERE Customer_ID=%s
     """, (first, last, email, phone or None, current_user.id))
 

@@ -87,7 +87,7 @@
             font-size: 16px;
             font-weight: bold;
             border-radius: 6px;
-            cursor: pointer; /* CHANGED: makes button feel clickable */
+            cursor: pointer;
         }
         .btn-back {
             background: #BF616A;
@@ -154,16 +154,24 @@
             <!-- CARD FIELDS -->
             <div class="card-fields">
                 <label for="card-number">Card Number</label>
-                <input type="text" id="card-number" name="card_number" placeholder="1234 5678 9012 3456">
+                <input
+                    type="text"
+                    id="card-number"
+                    name="card_number"
+                    placeholder="1234 5678 9012 3456"
+                    maxlength="19"
+                    inputmode="numeric"
+                    oninput="formatCardNumber(this)"
+                    onkeydown="if(event.key==='Enter')event.preventDefault()">
 
                 <div class="row">
                     <div class="half">
                         <label for="exp-date">Expiration Date</label>
-                        <input type="text" id="exp-date" name="exp_date" placeholder="MM/YY">
+                        <input type="text" id="exp-date" name="exp_date" placeholder="MM/YY" maxlength="5" inputmode="numeric" oninput="formatExpDate(this)" onkeydown="if(event.key==='Enter')event.preventDefault()">
                     </div>
                     <div class="half">
                         <label for="cvv">CVV</label>
-                        <input type="text" id="cvv" name="cvv" placeholder="123">
+                        <input type="text" id="cvv" name="cvv" placeholder="123" maxlength="4" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)" onkeydown="if(event.key==='Enter')event.preventDefault()">
                     </div>
                 </div>
             </div>
@@ -182,7 +190,7 @@
                     id="address"
                     name="address"
                     placeholder="123 Main St"
-                    value="{{ address.Address_Line_l if address else '' }}"> <!-- CHANGED: preload saved address -->
+                    value="{{ address.Address_Line_l if address else '' }}">
 
                 <div class="row">
                     <div class="half">
@@ -192,7 +200,7 @@
                             id="city"
                             name="city"
                             placeholder="City"
-                            value="{{ address.City if address else '' }}"> <!-- CHANGED: preload saved city -->
+                            value="{{ address.City if address else '' }}">
                     </div>
                     <div class="half">
                         <label for="state">State</label>
@@ -201,7 +209,7 @@
                             id="state"
                             name="state"
                             placeholder="State"
-                            value="{{ address.State if address else '' }}"> <!-- CHANGED: preload saved state -->
+                            value="{{ address.State if address else '' }}">
                     </div>
                 </div>
 
@@ -213,12 +221,12 @@
                     placeholder="27284"
                     value="{{ address.Zip_Code if address else '' }}"
                     maxlength="5"
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 5);"><!-- CHANGED: preload saved zip -->
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 5);">
             </div>
 
             <div class="buttons">
                 <button type="submit" class="btn-confirm">Confirm Payment</button>
-                <a href="{{ url_for('cart.cart') }}" class="btn-back">Back to Cart</a> <!-- CHANGED: fixed wrong endpoint -->
+                <a href="{{ url_for('cart.cart') }}" class="btn-back">Back to Cart</a>
             </div>
 
             <div class="summary-box">
@@ -251,6 +259,37 @@
     </div>
 
     <script>
+        function formatCardNumber(input) {
+            const cursorPos = input.selectionStart;
+            const digitsBeforeCursor = input.value.slice(0, cursorPos).replace(/\D/g, '').length;
+
+            let digits = input.value.replace(/\D/g, '').slice(0, 16);
+
+            let formatted = digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+
+            input.value = formatted;
+
+            let newCursor = 0;
+            let counted = 0;
+            for (let i = 0; i < formatted.length; i++) {
+                if (formatted[i] !== ' ') counted++;
+                if (counted === digitsBeforeCursor) { newCursor = i + 1; break; }
+            }
+            input.setSelectionRange(newCursor, newCursor);
+        }
+
+        function formatExpDate(input) {
+            let digits = input.value.replace(/\D/g, '');
+
+            digits = digits.slice(0, 4);
+
+            if (digits.length >= 3) {
+                input.value = digits.slice(0, 2) + '/' + digits.slice(2);
+            } else {
+                input.value = digits;
+            }
+        }
+
         function toggleFields() {
             const method = document.getElementById("payment-method").value;
             const cardFields = document.querySelector(".card-fields");
