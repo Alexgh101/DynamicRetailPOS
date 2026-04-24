@@ -233,8 +233,13 @@
                             value="{{ address.State if address else '' }}">
                     </div>
                     <div class="half">
-                        <label for="state">Country</label>
-                        <input type="text" id="country" name="country" placeholder="Country">
+                        <label for="country">Country</label>
+                        <input
+                            type="text"
+                            id="country"
+                            name="country"
+                            placeholder="Country"
+                            value="{{ address.Country if address else '' }}">
                     </div>
                 </div>
 
