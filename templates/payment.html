@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <title>Payment</title>
@@ -10,16 +11,19 @@
             padding: 0;
             background: #2E3440;
         }
+
         .header {
             background: #2E3440;
             padding: 20px 0;
             text-align: center;
             margin-bottom: 30px;
         }
+
         .header h2 {
             color: #ECEFF4;
             margin: 8px 0 0;
         }
+
         .logo {
             max-width: 240px;
             height: auto;
@@ -28,6 +32,7 @@
             background: #3B4252;
             border-radius: 50px;
         }
+
         .payment-container {
             width: 90%;
             max-width: 600px;
@@ -38,12 +43,14 @@
             border: 1px solid #4C566A;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
+
         label {
             font-weight: bold;
             margin-bottom: 8px;
             display: block;
             color: #D8DEE9;
         }
+
         select,
         input {
             width: 100%;
@@ -56,29 +63,36 @@
             border-radius: 6px;
             color: #ECEFF4;
         }
+
         select option {
             background: #434C5E;
             color: #ECEFF4;
         }
+
         input::placeholder {
             color: #88C0D0;
         }
+
         .card-fields,
         .email-field {
             display: none;
         }
+
         .row {
             display: flex;
             gap: 20px;
         }
+
         .half {
             flex: 1;
         }
+
         .buttons {
             display: flex;
             justify-content: space-between;
             margin-top: 30px;
         }
+
         .btn-confirm {
             background: #A3BE8C;
             color: #2E3440;
@@ -88,6 +102,7 @@
             font-weight: bold;
             border-radius: 6px;
         }
+
         .btn-back {
             background: #BF616A;
             color: #ECEFF4;
@@ -98,6 +113,7 @@
             text-decoration: none;
             display: inline-block;
         }
+
         .summary-box {
             margin-top: 25px;
             padding: 20px;
@@ -105,17 +121,20 @@
             border: 1px solid #4C566A;
             border-radius: 8px;
         }
+
         .summary-box h3 {
             margin-top: 0;
             margin-bottom: 15px;
             color: #ECEFF4;
         }
+
         .summary-row {
             display: flex;
             justify-content: space-between;
             margin: 10px 0;
             color: #D8DEE9;
         }
+
         .summary-total {
             font-weight: bold;
             font-size: 18px;
@@ -124,6 +143,7 @@
             margin-top: 12px;
             color: #ECEFF4;
         }
+
         .address-field {
             margin-top: 20px;
             background: #434C5E;
@@ -133,6 +153,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <img src="{{ url_for('static', filename='elevate_retail_logo_4.png') }}" class="logo">
@@ -181,10 +202,13 @@
                         <label for="state">State</label>
                         <input type="text" id="state" name="state" placeholder="State">
                     </div>
+                    <div class="half">
+                        <label for="state">Country</label>
+                        <input type="text" id="country" name="country" placeholder="Country">
+                    </div>
                 </div>
                 <label for="zip">ZIP Code</label>
-                <input type="text" id="zip" name="zip" placeholder="27284"
-                    maxlength="5"
+                <input type="text" id="zip" name="zip" placeholder="27284" maxlength="5"
                     oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 5);">
             </div>
 
@@ -240,4 +264,5 @@
         toggleFields();
     </script>
 </body>
+
 </html>
