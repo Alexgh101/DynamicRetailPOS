@@ -1,7 +1,7 @@
 # Created by: Silas Young, Katie Southard, Alex Puckett, Mesh Young
 # 03/2026 - 05/2026 Elevate Retail Capstone Class, Forsyth Tech Community College
 
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_login import LoginManager
 from auth import auth_bp, User
 from cart import cart_bp
@@ -59,12 +59,30 @@ def get_products():
     return return_products
 
 
-# Base home page, with lists for the retrieved products and an empty cart for the user to use across the pages
+# Calculates subtotal and automatic deal message for the side cart on the products page
+def get_side_cart_deal_info(cart):
+    cart_subtotal = sum(item["price"] * item["quantity"] for item in cart)
+
+    if cart_subtotal >= 300:
+        deal_message = "20% automatic deal unlocked!"
+    elif cart_subtotal >= 100:
+        amount_needed = 300 - cart_subtotal
+        deal_message = f"15% deal unlocked! Add ${amount_needed:.2f} more to unlock 20% off."
+    else:
+        amount_needed = 100 - cart_subtotal
+        deal_message = f"Add ${amount_needed:.2f} more to unlock 15% off."
+
+    return cart_subtotal, deal_message
+
+
+# Base home page, with lists for the retrieved products and cart info for the side panel
 @home.route("/")
 def home_page():
     products = get_products()  # CHANGED: always reload products from DB so stock updates show immediately
     cart = session.get("cart", [])
     query = request.args.get("q", "").strip().lower()
+
+    cart_subtotal, side_cart_deal_message = get_side_cart_deal_info(cart)
 
     if query:
         filtered_products = [item for item in products if query in item["name"].lower()]  # CHANGED: search fresh DB data
@@ -74,8 +92,15 @@ def home_page():
     return render_template(
         "home.html",
         products=filtered_products,
-        cart=cart
+        cart=cart,
+        cart_subtotal=cart_subtotal,
+        side_cart_deal_message=side_cart_deal_message
     )
+
+
+@home.route("/api/products")
+def api_products():
+    return jsonify(get_products())  # new route for background inventory refresh
 
 
 # Adds products to cart when clicked upon

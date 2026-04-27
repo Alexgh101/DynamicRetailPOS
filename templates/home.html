@@ -8,23 +8,62 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            background: #2E3440;
-        }
-        header {
-            background: #2E3440;
-            color: #ECEFF4;
             padding: 20px;
-            text-align: center;
+            background: #2E3440;
         }
+
+        .page-header {
+            background: linear-gradient(135deg, #3B4252, #2E3440);
+            color: #ECEFF4;
+            padding: 26px 20px;
+            border-radius: 12px;
+            margin: 0 auto 20px;
+            border: 1px solid #4C566A;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            max-width: 1200px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            color: #ECEFF4;
+            font-size: 44px;
+            font-weight: bold;
+        }
+
+        .page-header p {
+            margin: 8px 0 0;
+            color: #E5E9F0;
+            font-size: 20px;
+        }
+
         .logo {
-            max-width: 240px;
+            max-width: 220px;
             height: auto;
             display: block;
-            margin: 0 auto 10px;
+            margin: 0 auto 12px;
             background: #3B4252;
             border-radius: 50px;
         }
+
+        .promo-banner-static {
+            background: #5E81AC;
+            color: #ECEFF4;
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            border-top: 1px solid #81A1C1;
+            border-bottom: 1px solid #81A1C1;
+            border-radius: 8px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .promo-banner-static span {
+            display: inline-block;
+            margin-left: 45px;
+        }
+
         .items-container {
             width: 90%;
             max-width: 1100px;
@@ -33,6 +72,7 @@
             gap: 25px;
             place-items: center;
         }
+
         .items {
             background: #3B4252;
             padding: 20px;
@@ -44,6 +84,7 @@
             gap: 20px;
             text-align: center;
         }
+
         .item-card {
             display: flex;
             gap: 15px;
@@ -56,28 +97,36 @@
             border: 1px solid #4C566A;
             border-radius: 10px;
         }
+
         .item-card img {
             width: 100%;
             height: 140px;
             object-fit: cover;
             border-radius: 8px;
         }
-        .item-details { flex: 1; }
+
+        .item-details {
+            flex: 1;
+        }
+
         .item-details h3 {
             margin: 0 0 8px;
             font-size: 18px;
             color: #ECEFF4;
         }
+
         .item-details p {
             margin: 0 0 10px;
             color: #D8DEE9;
             font-size: 14px;
         }
+
         .price {
             font-weight: bold;
             color: #A3BE8C;
             margin-bottom: 10px;
         }
+
         .add-cart {
             color: #ECEFF4;
             background: #5E81AC;
@@ -87,12 +136,20 @@
             cursor: pointer;
             padding: 6px 14px;
         }
-        .add-cart:hover { background: #81A1C1; }
-        .cart-wrapper { display: flex; }
+
+        .add-cart:hover {
+            background: #81A1C1;
+        }
+
+        .cart-wrapper {
+            display: flex;
+        }
+
         .cart-main {
             flex-grow: 1;
             padding: 20px;
         }
+
         .cart-side-toggle {
             position: fixed;
             top: 20px;
@@ -110,16 +167,23 @@
             cursor: pointer;
             z-index: 100;
         }
-        .cart-side-toggle:hover { background: #81A1C1; }
-        .cart-side-toggle.panel-open { right: 240px; }
+
+        .cart-side-toggle:hover {
+            background: #81A1C1;
+        }
+
+        .cart-side-toggle.panel-open {
+            right: 340px;
+        }
+
         .side-panel {
             justify-items: center;
             display: block;
             position: fixed;
             top: 0;
-            right: -240px;
+            right: -340px;
             transition: right 0.3s ease;
-            width: 200px;
+            width: 300px;
             height: 100vh;
             padding: 20px;
             color: #ECEFF4;
@@ -127,40 +191,102 @@
             box-shadow: -2px 0 10px rgba(0, 0, 0, 0.4);
             overflow-y: auto;
             z-index: 99;
+            padding-bottom: 170px;
+            box-sizing: border-box;
         }
-        .side-panel-open .side-panel { right: 0; }
+
+        .side-panel-open .side-panel {
+            right: 0;
+        }
+
+        .cart-side-summary {
+            position: fixed;
+            bottom: 0;
+            right: -340px;
+            transition: right 0.3s ease;
+            width: 300px;
+            padding: 15px 20px 20px;
+            background: #2E3440;
+            border-top: 1px solid #4C566A;
+            box-shadow: -2px -2px 10px rgba(0, 0, 0, 0.25);
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .side-panel-open .cart-side-summary {
+            right: 0;
+        }
+
+        .cart-subtotal {
+            color: #ECEFF4;
+            font-weight: bold;
+            margin: 0 0 8px;
+            font-size: 15px;
+        }
+
+        .side-deal-message {
+            color: #88C0D0;
+            font-size: 13px;
+            line-height: 1.4;
+            margin: 0 0 12px;
+        }
+
         .proceed-cart {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 8px 16px;
+            width: 100%;
+            padding: 9px 10px;
             color: #ECEFF4;
             background: #5E81AC;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
-        .proceed-cart:hover { background: #81A1C1; }
+
+        .proceed-cart:hover {
+            background: #81A1C1;
+        }
+
         .cart-side-tile {
             display: flex;
-            gap: 5px;
+            gap: 12px;
             align-items: center;
-            text-align: center;
-            padding: 5px;
-            margin-bottom: 5px;
+            text-align: left;
+            padding: 10px;
+            margin-bottom: 10px;
             background: #434C5E;
             border: 1px solid #4C566A;
             border-radius: 10px;
             color: #ECEFF4;
+            width: 100%;
+            min-height: 90px;
+            box-sizing: border-box;
         }
+
         .cart-side-tile img {
-            width: 30%;
+            width: 70px;
             height: 70px;
             object-fit: cover;
             border-radius: 8px;
+            flex-shrink: 0;
         }
-        .empty-cart { color: #D8DEE9; }
+
+        .cart-side-text {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            height: 100%;
+        }
+
+        .cart-side-text p {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.2;
+            word-break: normal;
+        }
+
+        .empty-cart {
+            color: #D8DEE9;
+        }
+
         input[type="text"] {
             background: #434C5E;
             border: 1px solid #4C566A;
@@ -168,7 +294,11 @@
             color: #ECEFF4;
             padding: 6px 10px;
         }
-        input[type="text"]::placeholder { color: #88C0D0; }
+
+        input[type="text"]::placeholder {
+            color: #88C0D0;
+        }
+
         button[type="submit"] {
             background: #5E81AC;
             color: #ECEFF4;
@@ -177,8 +307,16 @@
             padding: 6px 14px;
             cursor: pointer;
         }
-        button[type="submit"]:hover { background: #81A1C1; }
-        p1 { color: #D8DEE9; font-size: 13px; }
+
+        button[type="submit"]:hover {
+            background: #81A1C1;
+        }
+
+        p1 {
+            color: #D8DEE9;
+            font-size: 13px;
+        }
+
         .signin-btn {
             position: fixed;
             top: 20px;
@@ -194,13 +332,55 @@
             z-index: 100;
             transition: background 0.2s ease;
         }
-        .signin-btn:hover { background: #81A1C1; }
+
+        .signin-btn:hover {
+            background: #81A1C1;
+        }
+
+        @media (max-width: 850px) {
+            body {
+                padding: 12px;
+            }
+
+            .page-header h1 {
+                font-size: 34px;
+            }
+
+            .page-header p {
+                font-size: 16px;
+            }
+
+            .promo-banner-static span {
+                display: block;
+                margin-left: 0;
+                margin-top: 6px;
+            }
+
+            .items {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-main {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-<header>
+
+<header class="page-header">
     <img class="logo" src="{{ url_for('static', filename='elevate_retail_logo_4.png') }}" alt="Elevate Retail Logo">
+    <h1>Elevate Retail</h1>
+    <p>Browse products and unlock automatic deals as you shop.</p>
 </header>
+
+<div class="promo-banner-static">
+    Current Promos & Deals:
+    <span>• NEW5 for $5 off</span>
+    <span>• SAVE10 for $10 off</span>
+    <span>• Spend $100+ for 15% off</span>
+    <span>• Spend $300+ for 20% off</span>
+</div>
 
 {% if current_user.is_authenticated %}
     <a href="{{ url_for('user.profile') }}" class="signin-btn">My Profile</a>
@@ -216,10 +396,12 @@
     <div class="cart-main">
         <div class="items-container">
             <h2 style="color:#ECEFF4">Available Products</h2>
+
             <form action="/" method="GET">
                 <input type="text" name="q" placeholder="Search items..." value="{{ request.args.get('q', '') }}">
                 <button type="submit">Search</button>
             </form>
+
             <section class="items">
                 {% if products %}
                     {% for item in products %}
@@ -228,9 +410,10 @@
                         <div class="item-details">
                             <h3>{{ item.name }}</h3>
                             <p>{{ item.description }}</p>
-                            <p1>{{ item.quantity }} in stock</p1>
+                            <p1 id="stock-{{ item.inventory_id }}">{{item.quantity}} in stock</p1>
                             <div class="price">${{ "%.2f"|format(item.price | float) }} each</div>
-                            <form action="{{ url_for('add_to_cart') }}" method="POST">
+
+                            <form action="{{ url_for('add_to_cart') }}" method="POST" class="add-to-cart-form">
                                 <input type="hidden" name="inventory_id" value="{{ item.inventory_id }}">
                                 <input type="hidden" name="name" value="{{ item.name }}">
                                 <input type="hidden" name="description" value="{{ item.description }}">
@@ -253,12 +436,20 @@
             {% for item in cart %}
             <div class="cart-side-tile">
                 <img src="{{ item.image }}" alt="{{ item.name }}">
-                <p>{{ item.quantity }}x {{ item.name }}</p>
+                <div class="cart-side-text">
+                    <p>{{item.quantity }}x {{ item.name}}</p>
+                </div>
             </div>
             {% endfor %}
         {% else %}
             <p class="empty-cart">Cart is empty.</p>
         {% endif %}
+    </div>
+
+    <div class="cart-side-summary">
+        <p class="cart-subtotal">Subtotal: ${{ "%.2f"|format(cart_subtotal) }}</p>
+        <p class="side-deal-message">{{ side_cart_deal_message }}</p>
+
         <form action="/cart">
             <button class="proceed-cart" type="submit">Proceed to Cart</button>
         </form>
@@ -270,6 +461,46 @@
         document.querySelector(".cart-wrapper").classList.toggle("side-panel-open");
         document.querySelector(".cart-side-toggle").classList.toggle("panel-open");
     });
+
+    async function refreshInventory() {
+        try {
+            const response = await fetch("/api/products");
+            const products = await response.json();
+
+            products.forEach(product => {
+                const stockElement = document.getElementById(`stock-${product.inventory_id}`);
+
+                if (stockElement) {
+                    if (product.quantity > 0) {
+                        stockElement.textContent = `${product.quantity} in stock`;
+                    } else {
+                        stockElement.textContent = "Out of stock";
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Error refreshing inventory:", error);
+        }
+    }
+
+    setInterval(refreshInventory, 5000);
+
+    // Save scroll position before add-to-cart submits
+    document.querySelectorAll(".add-to-cart-form").forEach(form => {
+        form.addEventListener("submit", function () {
+            sessionStorage.setItem("scrollPosition", window.scrollY);
+        });
+    });
+
+    // Restore scroll position after reload
+    window.addEventListener("load", function () {
+        const savedPosition = sessionStorage.getItem("scrollPosition");
+        if (savedPosition !== null) {
+            window.scrollTo(0, parseInt(savedPosition));
+            sessionStorage.removeItem("scrollPosition");
+        }
+    });
 </script>
+
 </body>
 </html>

@@ -19,23 +19,50 @@
     }
 
     .header {
-      background: #3B4252;
+      background: linear-gradient(135deg, #3B4252, #2E3440);
       color: #ECEFF4;
-      padding: 20px;
+      padding: 26px 20px;
       border-radius: 12px;
       margin-bottom: 20px;
       border: 1px solid #4C566A;
       text-align: center;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .check-icon {
+      width: 44px;
+      height: 44px;
+      border: 3px solid #A3BE8C;
+      color: #A3BE8C;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: bold;
+      line-height: 1;
+      box-sizing: border-box;
     }
 
     .header h1 {
-      margin: 0 0 8px 0;
+      margin: 0;
       color: #ECEFF4;
+      font-size: 44px;
+      font-weight: bold;
     }
 
     .header p {
       margin: 0;
-      color: #D8DEE9;
+      color: #E5E9F0;
+      font-size: 20px;
     }
 
     .grid {
@@ -45,37 +72,37 @@
     }
 
     .card {
-      background: #3B4252;
+      background: #ECEFF4;
       padding: 20px;
       border-radius: 12px;
       flex: 1;
-      border: 1px solid #4C566A;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      border: 1px solid #D8DEE9;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       min-width: 320px;
     }
 
     .card h2 {
-      color: #ECEFF4;
+      color: #2E3440;
       margin-top: 0;
-      border-bottom: 1px solid #4C566A;
+      border-bottom: 1px solid #D8DEE9;
       padding-bottom: 8px;
       margin-bottom: 15px;
     }
 
     .card p {
-      color: #D8DEE9;
+      color: #3B4252;
     }
 
     .card strong {
-      color: #ECEFF4;
+      color: #2E3440;
     }
 
     .product-item {
       display: flex;
       gap: 15px;
       padding: 15px;
-      border: 1px solid #4C566A;
-      background: #434C5E;
+      border: 1px solid #D8DEE9;
+      background: #E5E9F0;
       border-radius: 10px;
       margin-bottom: 15px;
       align-items: center;
@@ -86,20 +113,20 @@
       height: 90px;
       object-fit: cover;
       border-radius: 10px;
-      border: 1px solid #4C566A;
-      background: #2E3440;
+      border: 1px solid #D8DEE9;
+      background: #D8DEE9;
     }
 
     .product-item p {
       margin: 6px 0;
-      color: #D8DEE9;
+      color: #3B4252;
     }
 
     .price {
       margin-left: auto;
       font-weight: bold;
       font-size: 18px;
-      color: #ECEFF4;
+      color: #2E3440;
       white-space: nowrap;
     }
 
@@ -107,7 +134,14 @@
       display: flex;
       justify-content: space-between;
       margin: 10px 0;
-      color: #D8DEE9;
+      color: #3B4252;
+    }
+
+    .summary-note {
+      display: block !important;
+      color: #5E81AC !important;
+      font-size: 13px;
+      margin-top: 8px;
     }
 
     .total {
@@ -115,17 +149,34 @@
       font-weight: bold;
       margin-top: 15px;
       padding-top: 12px;
-      border-top: 1px solid #4C566A;
-      color: #ECEFF4;
+      border-top: 1px solid #D8DEE9;
+      color: #2E3440;
     }
 
     .success-box {
-      background: #A3BE8C;
+      background: #D0F0CC;
       padding: 15px;
       border-radius: 10px;
       margin-top: 20px;
-      color: #2E3440;
+      color: #2F5D34;
       font-weight: bold;
+      border: 1px solid #A3D9A5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .success-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #3FA35C;
+      color: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
     }
 
     .btn {
@@ -140,21 +191,23 @@
     }
 
     .btn-primary {
-      background: #5E81AC;
+      background: #AAC8E3;
       color: #ECEFF4;
+      border: 1px solid #8FB6D6;
     }
 
     .btn-primary:hover {
-      background: #81A1C1;
+      background: #9DBFDE;
     }
 
     .btn-secondary {
-      background: #BF616A;
+      background: #5E81AC;
       color: #ECEFF4;
+      border: 1px solid #4C6F9E;
     }
 
     .btn-secondary:hover {
-      background: #D08770;
+      background: #81A1C1;
     }
   </style>
 </head>
@@ -164,7 +217,10 @@
 <div class="container">
 
   <div class="header">
-    <h1>Order Confirmed</h1>
+    <div class="header-title">
+      <span class="check-icon">✓</span>
+      <h1>Order Confirmed</h1>
+    </div>
     <p>Thank you for your purchase. Your order is being processed.</p>
   </div>
 
@@ -179,9 +235,15 @@
 
       <h2>Shipping Address</h2>
       <p><strong>Street:</strong> {{ address.Address_Line_l if address else 'N/A' }}</p>
+
+      {% if address and address.Address_Line_2 %}
+      <p><strong>Address Line 2:</strong> {{ address.Address_Line_2 }}</p>
+      {% endif %}
+
       <p><strong>City:</strong> {{ address.City if address else 'N/A' }}</p>
       <p><strong>State:</strong> {{ address.State if address else 'N/A' }}</p>
       <p><strong>ZIP Code:</strong> {{ address.Zip_Code if address else 'N/A' }}</p>
+      <p><strong>Country:</strong> {{ address.Country if address else 'N/A' }}</p>
 
       <h2>Items Purchased</h2>
       {% for item in order_items %}
@@ -203,7 +265,17 @@
       <div class="summary">
         <p><span>Subtotal</span><span>${{ "%.2f"|format(order.subtotal) }}</span></p>
         <p><span>Membership Discount</span><span>-${{ "%.2f"|format(order.membership_discount) }}</span></p>
-        <p><span>Promo Discount</span><span>-${{ "%.2f"|format(order.promo_discount) }}</span></p>
+
+        {% if order.applied_discount_amount > 0 %}
+        <p><span>{{ order.applied_discount_name }}</span><span>-${{ "%.2f"|format(order.applied_discount_amount) }}</span></p>
+        {% else %}
+        <p class="summary-note">No extra promo or automatic deal discount was selected.</p>
+        {% endif %}
+
+        {% if order.membership_upgrade_cost > 0 %}
+        <p><span>Membership Upgrade</span><span>${{ "%.2f"|format(order.membership_upgrade_cost) }}</span></p>
+        {% endif %}
+
         <p><span>Tax</span><span>${{ "%.2f"|format(order.tax) }}</span></p>
       </div>
 
@@ -212,10 +284,11 @@
       </div>
 
       <div class="success-box">
-        Your order has been successfully placed. A confirmation email has been sent.
+        <span class="success-icon">✓</span>
+        <span>Your order has been successfully placed. A confirmation email has been sent.</span>
       </div>
 
-      <a href="#" class="btn btn-primary">Track Order</a>
+      <a href="{{ url_for('user.order_history') }}" class="btn btn-primary">My Orders</a>
       <a href="{{ url_for('home_page') }}" class="btn btn-secondary">Continue Shopping</a>
     </div>
 

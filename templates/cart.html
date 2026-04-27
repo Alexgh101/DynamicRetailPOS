@@ -5,39 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Cart</title>
     <style>
-        /* page background and default text style */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            background: #2E3440;
-        }
-
-        /* page header */
-        header {
-            background: #2E3440;
-            color: #ECEFF4;
             padding: 20px;
-            text-align: center;
+            background: #2E3440;
         }
 
-        /* header title */
-        header h2 {
+        .page-header {
+            background: linear-gradient(135deg, #3B4252, #2E3440);
             color: #ECEFF4;
-            margin: 8px 0 0;
+            padding: 26px 20px;
+            border-radius: 12px;
+            margin: 0 auto 20px;
+            border: 1px solid #4C566A;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            max-width: 1200px;
         }
 
-        /* site logo */
+        .page-header h1 {
+            margin: 0;
+            color: #ECEFF4;
+            font-size: 44px;
+            font-weight: bold;
+        }
+
+        .page-header p {
+            margin: 8px 0 0;
+            color: #E5E9F0;
+            font-size: 20px;
+        }
+
         .logo {
-            max-width: 240px;
+            max-width: 220px;
             height: auto;
             display: block;
-            margin: 0 auto 10px;
+            margin: 0 auto 12px;
             background: #3B4252;
             border-radius: 50px;
         }
 
-        /* main cart page layout */
         .cart-container {
             width: 90%;
             max-width: 1100px;
@@ -47,7 +55,6 @@
             gap: 25px;
         }
 
-        /* cart items section */
         .cart-items {
             background: #3B4252;
             padding: 20px;
@@ -56,13 +63,11 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
-        /* cart items heading */
         .cart-items h2 {
             color: #ECEFF4;
             margin-top: 0;
         }
 
-        /* order summary section */
         .cart-summary {
             background: #3B4252;
             padding: 20px;
@@ -71,13 +76,11 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
-        /* order summary heading */
         .cart-summary h2 {
             color: #ECEFF4;
             margin-top: 0;
         }
 
-        /* individual cart item card */
         .cart-item {
             display: flex;
             gap: 15px;
@@ -89,7 +92,6 @@
             border-radius: 10px;
         }
 
-        /* cart item image */
         .cart-item img {
             width: 120px;
             height: 90px;
@@ -97,33 +99,28 @@
             border-radius: 8px;
         }
 
-        /* cart item details container */
         .item-details {
             flex: 1;
         }
 
-        /* cart item name */
         .item-details h3 {
             margin: 0 0 8px;
             font-size: 18px;
             color: #ECEFF4;
         }
 
-        /* cart item description */
         .item-details p {
             margin: 0 0 10px;
             color: #D8DEE9;
             font-size: 14px;
         }
 
-        /* item price text */
         .price {
             font-weight: bold;
             color: #A3BE8C;
             margin-bottom: 10px;
         }
 
-        /* quantity and action buttons area */
         .item-actions {
             display: flex;
             align-items: center;
@@ -131,13 +128,11 @@
             margin-top: 8px;
         }
 
-        /* quantity label */
         .item-actions label {
             color: #D8DEE9;
             font-size: 14px;
         }
 
-        /* quantity input box */
         .item-actions input {
             width: 60px;
             padding: 6px;
@@ -148,12 +143,10 @@
             color: #ECEFF4;
         }
 
-        /* total price on each cart item */
         .cart-item > div > strong {
             color: #ECEFF4;
         }
 
-        /* shared button style */
         .btn {
             padding: 8px 14px;
             border: none;
@@ -162,29 +155,33 @@
             font-weight: bold;
         }
 
-        /* update button */
         .btn-update {
             background: #5E81AC;
             color: #ECEFF4;
         }
 
-        /* update button hover effect */
         .btn-update:hover {
             background: #81A1C1;
         }
 
-        /* remove button */
         .btn-remove {
             background: #BF616A;
             color: #ECEFF4;
         }
 
-        /* remove button hover effect */
         .btn-remove:hover {
             background: #D08770;
         }
 
-        /* summary row layout */
+        .btn-no-thanks {
+            background: #4C566A;
+            color: #ECEFF4;
+        }
+
+        .btn-no-thanks:hover {
+            background: #5E81AC;
+        }
+
         .summary-row {
             display: flex;
             justify-content: space-between;
@@ -193,7 +190,6 @@
             color: #D8DEE9;
         }
 
-        /* total row in summary */
         .summary-total {
             font-size: 20px;
             font-weight: bold;
@@ -203,7 +199,6 @@
             color: #ECEFF4;
         }
 
-        /* promo code input and membership dropdown */
         .promo-input,
         .membership-select {
             width: 100%;
@@ -216,19 +211,57 @@
             color: #ECEFF4;
         }
 
-        /* promo code placeholder text */
         .promo-input::placeholder {
             color: #88C0D0;
         }
 
-        /* promo and membership labels */
         .promo-label,
         .membership-label,
         .membership-current {
             color: #D8DEE9;
         }
 
-        /* membership box section */
+        .discount-note {
+            color: #88C0D0;
+            font-size: 13px;
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+
+        .discount-box {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding: 15px;
+            background: #434C5E;
+            border: 1px solid #4C566A;
+            border-radius: 8px;
+        }
+
+        .discount-box h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #ECEFF4;
+            font-size: 18px;
+        }
+
+        .discount-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+            color: #D8DEE9;
+            font-size: 14px;
+        }
+
+        .discount-option input {
+            width: auto;
+            margin: 0;
+        }
+
+        .discount-option small {
+            color: #88C0D0;
+        }
+
         .membership-box {
             margin-top: 20px;
             margin-bottom: 10px;
@@ -238,14 +271,52 @@
             border-radius: 8px;
         }
 
-        /* membership box paragraph text */
         .membership-box p {
             margin: 0 0 10px;
             color: #D8DEE9;
             font-size: 14px;
         }
 
-        /* checkout and back buttons */
+        .upgrade-card {
+            margin-top: 20px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #434C5E;
+            border: 1px solid #88C0D0;
+            border-radius: 8px;
+            color: #ECEFF4;
+        }
+
+        .upgrade-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #88C0D0;
+        }
+
+        .upgrade-card p {
+            margin: 6px 0;
+            color: #D8DEE9;
+            font-size: 14px;
+        }
+
+        .membership-cart-item {
+            border: 1px solid #88C0D0;
+        }
+
+        .membership-icon {
+            width: 120px;
+            height: 90px;
+            border-radius: 8px;
+            background: #5E81AC;
+            color: #ECEFF4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
         .checkout-btn,
         .back-btn {
             display: block;
@@ -261,7 +332,6 @@
             color: #ECEFF4;
         }
 
-        /* checkout button style */
         .checkout-btn {
             margin-top: 20px;
             background: #A3BE8C;
@@ -269,30 +339,25 @@
             font-weight: bold;
         }
 
-        /* checkout button hover effect */
         .checkout-btn:hover {
             background: #88C0D0;
         }
 
-        /* back button style */
         .back-btn {
             margin-top: 10px;
             background: #4C566A;
         }
 
-        /* back button hover effect */
         .back-btn:hover {
             background: #5E81AC;
         }
 
-        /* empty cart message */
         .empty-cart {
             text-align: center;
             color: #D8DEE9;
             padding: 30px 0;
         }
 
-        /* popup background overlay */
         .recommendation-modal {
             display: none;
             position: fixed;
@@ -304,7 +369,6 @@
             background-color: rgba(0, 0, 0, 0.6);
         }
 
-        /* main popup box */
         .recommendation-modal-content {
             background: #3B4252;
             color: #ECEFF4;
@@ -319,17 +383,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
-        /* close button */
-        .close-btn {
-            position: absolute;
-            right: 20px;
-            top: 10px;
-            font-size: 28px;
-            cursor: pointer;
-            color: #ECEFF4;
-        }
-
-        /* recommendation card layout */
         .recommendation-grid {
             display: flex;
             justify-content: center;
@@ -338,7 +391,6 @@
             margin-top: 20px;
         }
 
-        /* individual recommendation card */
         .recommendation-card {
             border: 1px solid #4C566A;
             border-radius: 10px;
@@ -347,7 +399,6 @@
             background: #434C5E;
         }
 
-        /* recommendation product image */
         .recommendation-card img {
             width: 100%;
             height: 180px;
@@ -356,26 +407,41 @@
             margin-bottom: 10px;
         }
 
-        /* recommendation product name */
         .recommendation-card h3 {
             color: #ECEFF4;
             font-size: 18px;
             margin-bottom: 8px;
         }
 
-        /* recommendation product price */
         .recommendation-card p {
             color: #D8DEE9;
             margin-bottom: 12px;
         }
 
-        /* responsive layout for smaller screens */
+        .recommendation-actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+
         @media (max-width: 850px) {
+            body {
+                padding: 12px;
+            }
+
+            .page-header h1 {
+                font-size: 34px;
+            }
+
+            .page-header p {
+                font-size: 16px;
+            }
+
             .cart-container {
                 grid-template-columns: 1fr;
             }
 
-            .cart-item img {
+            .cart-item img,
+            .membership-icon {
                 width: 100%;
                 height: auto;
                 max-width: 250px;
@@ -385,16 +451,17 @@
 </head>
 <body>
 
-<header>
+<header class="page-header">
     <img src="{{url_for('static', filename='elevate_retail_logo_4.png')}}" alt="Elevate Retail Logo" class="logo">
-    <h2>My Cart</h2>
+    <h1>My Cart</h1>
+    <p>Review your items, discounts, and membership options before checkout.</p>
 </header>
 
 <div class="cart-container">
 
     <section class="cart-items">
         <h2>My Cart</h2>
-        {% if cart %}
+        {% if cart or membership_upgrade_cost > 0 %}
             {% for item in cart %}
                 <div class="cart-item">
                     <img src="{{item.image}}" alt="{{item.name}}">
@@ -420,6 +487,20 @@
                     </div>
                 </div>
             {% endfor %}
+
+            {% if membership_upgrade_cost > 0 %}
+            <div class="cart-item membership-cart-item">
+                <div class="membership-icon">★</div>
+                <div class="item-details">
+                    <h3>Membership Upgrade</h3>
+                    <p>Upgrade from {{ current_membership_level }} to {{ selected_membership_level }}</p>
+                    <div class="price">${{ "%.2f"|format(membership_upgrade_cost) }}</div>
+                </div>
+                <div>
+                    <strong>${{ "%.2f"|format(membership_upgrade_cost) }}</strong>
+                </div>
+            </div>
+            {% endif %}
         {% else %}
             <p class="empty-cart">Your cart is empty.</p>
         {% endif %}
@@ -439,6 +520,56 @@
             <button type="submit" class="btn btn-update" style="margin-top: 10px;">Apply Code</button>
         </form>
 
+        <div class="discount-box">
+            <h3>Choose Discount</h3>
+
+            <p class="discount-note">{{ auto_deal_message }}</p>
+
+            <form action="{{ url_for('cart.update_discount_choice') }}" method="POST">
+                <label class="discount-option">
+                    <input type="radio"
+                           name="discount_choice"
+                           value="none"
+                           {% if discount_choice == 'none' %}checked{% endif %}>
+                    No extra discount
+                </label>
+
+                <label class="discount-option">
+                    <input type="radio"
+                           name="discount_choice"
+                           value="promo"
+                           {% if discount_choice == 'promo' %}checked{% endif %}
+                           {% if promo_discount <= 0 %}disabled{% endif %}>
+                    Promo Code Discount
+                    <small>
+                        {% if promo_discount > 0 %}
+                            -${{ "%.2f"|format(promo_discount) }}
+                        {% else %}
+                            Enter a valid promo code first
+                        {% endif %}
+                    </small>
+                </label>
+
+                <label class="discount-option">
+                    <input type="radio"
+                           name="discount_choice"
+                           value="auto"
+                           {% if discount_choice == 'auto' %}checked{% endif %}
+                           {% if auto_discount <= 0 %}disabled{% endif %}>
+                    Automatic Deal Discount
+                    <small>
+                        {% if auto_discount > 0 %}
+                            -${{ "%.2f"|format(auto_discount) }}
+                        {% else %}
+                            Not unlocked yet
+                        {% endif %}
+                    </small>
+                </label>
+
+                <button type="submit" class="btn btn-update" style="margin-top: 10px;">Apply Selected Discount</button>
+            </form>
+        </div>
+
         <div class="membership-box">
             <label class="membership-label"><strong>Membership Upgrade</strong></label>
             <p class="membership-current">Current Membership: <strong>{{current_membership_level}}</strong></p>
@@ -455,30 +586,49 @@
             </form>
         </div>
 
+        {% if membership_upgrade_cost > 0 %}
+        <div class="upgrade-card">
+            <h3>Membership Upgrade</h3>
+            <p>
+                You are upgrading from <strong>{{ current_membership_level }}</strong>
+                to <strong>{{ selected_membership_level }}</strong>.
+            </p>
+            <p>
+                The upgrade difference of <strong>${{ "%.2f"|format(membership_upgrade_cost) }}</strong>
+                is reflected in your total.
+            </p>
+        </div>
+        {% endif %}
+
         <div class="summary-row">
             <span>Subtotal</span>
             <span>${{"%.2f"|format(subtotal)}}</span>
         </div>
+
         <div class="summary-row">
             <span>Membership Discount</span>
             <span>-${{"%.2f"|format(membership_discount)}}</span>
         </div>
+
+        {% if applied_discount_amount > 0 %}
         <div class="summary-row">
-            <span>Promo Discount</span>
-            <span>-${{"%.2f"|format(promo_discount)}}</span>
+            <span>{{ applied_discount_name }}</span>
+            <span>-${{"%.2f"|format(applied_discount_amount)}}</span>
         </div>
+        {% endif %}
+
+        {% if membership_upgrade_cost > 0 %}
         <div class="summary-row">
             <span>Membership Upgrade</span>
             <span>${{"%.2f"|format(membership_upgrade_cost)}}</span>
         </div>
+        {% endif %}
+
         <div class="summary-row">
             <span>Sales Tax</span>
             <span>${{"%.2f"|format(sales_tax)}}</span>
         </div>
-        <div class="summary-row">
-            <span>Shipping</span>
-            <span>${{"%.2f"|format(shipping)}}</span>
-        </div>
+
         <div class="summary-row summary-total">
             <span>Total</span>
             <span>${{"%.2f"|format(total)}}</span>
@@ -493,36 +643,37 @@
 {% if recommendations and cart %}
 <div id="recommendationModal" class="recommendation-modal">
     <div class="recommendation-modal-content">
-        <span class="close-btn" onclick="closeRecommendationModal()">&times;</span>
         <h2>We thought you might also like:</h2>
         <p>Based on popular purchases from other shoppers.</p>
 
         <div class="recommendation-grid">
             {% for product in recommendations %}
             <div class="recommendation-card">
-                <img src="{{ product.Image_URL }}" alt="{{ product.Product_Name }}">
-                <h3>{{ product.Product_Name }}</h3>
-                <p>${{ "%.2f"|format(product.Unit_Price) }}</p>
+                <img src="{{product.Image_URL}}" alt="{{product.Product_Name}}">
+                <h3>{{product.Product_Name}}</h3>
+                <p>${{"%.2f"|format(product.Unit_Price)}}</p>
 
-                <form action="{{ url_for('cart.add_recommended_to_cart') }}" method="POST">
+                <form action="{{url_for('cart.add_recommended_to_cart')}}" method="POST">
                     <input type="hidden" name="product_id" value="{{ product.Inventory_ID }}">
                     <button type="submit" class="btn btn-update">Add to Cart</button>
                 </form>
             </div>
             {% endfor %}
         </div>
+
+        <div class="recommendation-actions">
+            <button type="button" class="btn btn-no-thanks" onclick="closeRecommendationModal()">No Thanks</button>
+        </div>
     </div>
 </div>
 {% endif %}
 
 <script>
-    /* closes popup and remembers it was already shown */
     function closeRecommendationModal() {
         document.getElementById("recommendationModal").style.display = "none";
         sessionStorage.setItem("recommendationShown", "true");
     }
 
-    /* shows popup once when the cart page loads */
     window.onload = function () {
         const modal = document.getElementById("recommendationModal");
 

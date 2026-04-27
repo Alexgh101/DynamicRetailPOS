@@ -7,11 +7,10 @@ from db import get_db_connection
 cart_bp = Blueprint("cart", __name__)
 cart_bp.secret_key = "elevate-retail-secret-key"
 
-# temp promo codes for testing
+#promo codes use flat dollar discounts
 PROMO_CODES = {
-    "SAVE10": 0.10,
-    "SAVE20": 0.20,
-    "NEW5": 0.05
+    "NEW5": 5.00,
+    "SAVE10": 10.00
 }
 
 MEMBERSHIP_PRICES = {
@@ -84,32 +83,84 @@ def calculate_membership_upgrade_cost(current_level, selected_level):
     return upgrade_cost
 
 
-# Calculates cart totals (membership, promo, tax, shipping, upgrade)
-def calculate_cart_totals(cart_items, promo_code=None, membership_rate=0.0, membership_upgrade_cost=0.0):
+# Calculates cart totals using the user's selected discount choice
+def calculate_cart_totals(
+    cart_items,
+    promo_code=None,
+    membership_rate=0.0,
+    membership_upgrade_cost=0.0,
+    discount_choice="none"
+):
     subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
 
     membership_discount = subtotal * membership_rate
 
+    # Promo code discount: flat dollar amount
     promo_discount = 0.00
     if promo_code:
         promo_code = promo_code.upper().strip()
         promo_value = PROMO_CODES.get(promo_code)
 
-        if isinstance(promo_value, float) and promo_value < 1:
-            promo_discount = subtotal * promo_value
-        elif isinstance(promo_value, (int, float)):
-            promo_discount = float(promo_value)
+        if isinstance(promo_value, (int, float)):
+            promo_discount = min(float(promo_value), subtotal)
 
-    discounted_subtotal = max(subtotal - membership_discount - promo_discount, 0)
+    # Automatic subtotal discount
+    auto_discount = 0.00
+    auto_discount_rate = 0.00
+    auto_deal_message = ""
+
+    if subtotal >= 300:
+        auto_discount_rate = 0.20
+        auto_discount = subtotal * auto_discount_rate
+        auto_deal_message = "You unlocked 20% off with the automatic deal."
+    elif subtotal >= 100:
+        auto_discount_rate = 0.15
+        auto_discount = subtotal * auto_discount_rate
+        amount_to_next_discount = 300 - subtotal
+        auto_deal_message = f"You unlocked 15% off. Add ${amount_to_next_discount:.2f} more to unlock 20% off."
+    else:
+        amount_to_next_discount = 100 - subtotal
+        auto_deal_message = f"Add ${amount_to_next_discount:.2f} more to unlock 15% off automatically."
+
+    # User-selected discount choice
+    applied_discount_name = ""
+    applied_discount_amount = 0.00
+
+    if discount_choice == "promo" and promo_discount > 0:
+        applied_discount_name = "Promo Discount"
+        applied_discount_amount = promo_discount
+    elif discount_choice == "auto" and auto_discount > 0:
+        if auto_discount_rate == 0.20:
+            applied_discount_name = "Automatic Discount (20%)"
+        elif auto_discount_rate == 0.15:
+            applied_discount_name = "Automatic Discount (15%)"
+        else:
+            applied_discount_name = "Automatic Discount"
+
+        applied_discount_amount = auto_discount
+    else:
+        discount_choice = "none"
+
+    discounted_subtotal = max(subtotal - membership_discount - applied_discount_amount, 0)
+
     tax_rate = 0.07
     sales_tax = discounted_subtotal * tax_rate
+
+    # Shipping is kept at 0 in backend but no longer shown in the UI
     shipping = 0.00
+
     total = discounted_subtotal + sales_tax + shipping + membership_upgrade_cost
 
     return {
         "subtotal": subtotal,
         "membership_discount": membership_discount,
         "promo_discount": promo_discount,
+        "auto_discount": auto_discount,
+        "auto_discount_rate": auto_discount_rate,
+        "auto_deal_message": auto_deal_message,
+        "discount_choice": discount_choice,
+        "applied_discount_name": applied_discount_name,
+        "applied_discount_amount": applied_discount_amount,
         "membership_upgrade_cost": membership_upgrade_cost,
         "sales_tax": sales_tax,
         "shipping": shipping,
@@ -188,6 +239,7 @@ def cart():
         session["cart"] = []
 
     promo_code = session.get("promo_code", "")
+    discount_choice = session.get("discount_choice", "none")
     cart_items = session.get("cart", [])
 
     current_level = get_current_membership_level(current_user.id)
@@ -200,7 +252,8 @@ def cart():
         cart_items,
         promo_code,
         membership_rate,
-        membership_upgrade_cost
+        membership_upgrade_cost,
+        discount_choice
     )
 
     recommendations = get_recommendations(cart_items)
@@ -211,6 +264,12 @@ def cart():
         subtotal=totals["subtotal"],
         membership_discount=totals["membership_discount"],
         promo_discount=totals["promo_discount"],
+        auto_discount=totals["auto_discount"],
+        auto_discount_rate=totals["auto_discount_rate"],
+        auto_deal_message=totals["auto_deal_message"],
+        discount_choice=totals["discount_choice"],
+        applied_discount_name=totals["applied_discount_name"],
+        applied_discount_amount=totals["applied_discount_amount"],
         membership_upgrade_cost=totals["membership_upgrade_cost"],
         sales_tax=totals["sales_tax"],
         shipping=totals["shipping"],
@@ -234,6 +293,19 @@ def update_membership():
         selected_level = current_level
 
     session["selected_membership_level"] = selected_level
+    return redirect(url_for("cart.cart"))
+
+
+# Route to choose which discount should be applied
+@cart_bp.route("/update_discount_choice", methods=["POST"])
+@login_required
+def update_discount_choice():
+    discount_choice = request.form.get("discount_choice", "none")
+
+    if discount_choice not in ["none", "promo", "auto"]:
+        discount_choice = "none"
+
+    session["discount_choice"] = discount_choice
     return redirect(url_for("cart.cart"))
 
 
@@ -266,8 +338,13 @@ def apply_promo():
 
     if promo_code in PROMO_CODES:
         session["promo_code"] = promo_code
+        session["discount_choice"] = "promo"
     else:
         session["promo_code"] = ""
+
+        # If the user clears/enters an invalid promo, do not force promo discount
+        if session.get("discount_choice") == "promo":
+            session["discount_choice"] = "none"
 
     return redirect(url_for("cart.cart"))
 
@@ -338,7 +415,7 @@ def add_recommended_to_cart():
             })
 
         session["cart"] = cart_items
-        session.modified = True  # CHANGED: makes sure Flask saves the cart update
+        session.modified = True
 
     except mysql.connector.Error as err:
         print(f"Add recommended item error: {err}")
@@ -356,8 +433,27 @@ def add_recommended_to_cart():
 def clear_cart():
     session.pop("cart", None)
     session.pop("promo_code", None)
+    session.pop("discount_choice", None)
     session.pop("selected_membership_level", None)
     return redirect(url_for("cart.cart"))
+
+
+def get_customer_addresses(customer_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT Address_ID, Address_Line_l, Address_Line_2, City, State, Zip_Code, Country
+        FROM Customer_Address
+        WHERE Customer_ID = %s AND Deleted_At IS NULL
+        ORDER BY Address_ID DESC
+    """, (customer_id,))
+
+    addresses = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+    return addresses
 
 
 @cart_bp.route("/payment")
@@ -365,6 +461,7 @@ def clear_cart():
 def payment():
     cart_items = session.get("cart", [])
     promo_code = session.get("promo_code", "")
+    discount_choice = session.get("discount_choice", "none")
 
     current_level = get_current_membership_level(current_user.id)
     selected_level = session.get("selected_membership_level", current_level)
@@ -372,15 +469,23 @@ def payment():
     membership_rate = get_membership_discount_rate(current_user.id)
     membership_upgrade_cost = calculate_membership_upgrade_cost(current_level, selected_level)
 
+    # Allow payment page if there are cart items or a pending membership upgrade
+    if not cart_items and membership_upgrade_cost <= 0:
+        return redirect(url_for("cart.cart"))
+
     totals = calculate_cart_totals(
         cart_items,
         promo_code,
         membership_rate,
-        membership_upgrade_cost
+        membership_upgrade_cost,
+        discount_choice
     )
 
-    # Load customer address
-    address = get_customer_address(current_user.id)
+    # Load all saved addresses for dropdown
+    addresses = get_customer_addresses(current_user.id)
+
+    # Use the newest saved address as the default one if there is one
+    address = addresses[0] if addresses else None
 
     return render_template(
         "payment.html",
@@ -388,6 +493,12 @@ def payment():
         subtotal=totals["subtotal"],
         membership_discount=totals["membership_discount"],
         promo_discount=totals["promo_discount"],
+        auto_discount=totals["auto_discount"],
+        auto_discount_rate=totals["auto_discount_rate"],
+        auto_deal_message=totals["auto_deal_message"],
+        discount_choice=totals["discount_choice"],
+        applied_discount_name=totals["applied_discount_name"],
+        applied_discount_amount=totals["applied_discount_amount"],
         membership_upgrade_cost=totals["membership_upgrade_cost"],
         sales_tax=totals["sales_tax"],
         shipping=totals["shipping"],
@@ -395,37 +506,17 @@ def payment():
         promo_code=promo_code,
         current_membership_level=current_level,
         selected_membership_level=selected_level,
-        address=address
+        address=address,
+        addresses=addresses
     )
-
-
-def get_customer_address(customer_id):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("""
-        SELECT Address_Line_l, Address_Line_2, City, State, Zip_Code, Country
-        FROM Customer_Address
-        WHERE Customer_ID = %s AND Deleted_At IS NULL
-        ORDER BY Created_At DESC
-        LIMIT 1
-    """, (customer_id,))
-
-    address = cursor.fetchone()
-
-    cursor.close()
-    conn.close()
-    return address
 
 
 @cart_bp.route("/order_confirmation", methods=["POST"])
 @login_required
 def order_confirmation():
     promo_code = session.get("promo_code", "")
+    discount_choice = session.get("discount_choice", "none")
     cart_items = session.get("cart", [])
-
-    if not cart_items:
-        return redirect(url_for("cart.cart"))
 
     payment_method = request.form.get("payment_method", "N/A")
 
@@ -435,15 +526,29 @@ def order_confirmation():
     membership_rate = get_membership_discount_rate(current_user.id)
     membership_upgrade_cost = calculate_membership_upgrade_cost(current_level, selected_level)
 
+    # Allow order confirmation if there are cart items or a pending membership upgrade
+    if not cart_items and membership_upgrade_cost <= 0:
+        return redirect(url_for("cart.cart"))
+
     totals = calculate_cart_totals(
         cart_items,
         promo_code,
         membership_rate,
-        membership_upgrade_cost
+        membership_upgrade_cost,
+        discount_choice
     )
 
-    # Load address for confirmation page
-    address = get_customer_address(current_user.id)
+    # Use the submitted shipping address from the payment page
+    address = {
+        "Address_Line_l": request.form.get("address", "").strip(),
+        "Address_Line_2": request.form.get("address2", "").strip(),
+        "City": request.form.get("city", "").strip(),
+        "State": request.form.get("state", "").strip(),
+        "Zip_Code": request.form.get("zip", "").strip(),
+        "Country": request.form.get("country", "").strip()
+    }
+
+    save_address = request.form.get("save_address") == "yes"
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -471,7 +576,10 @@ def order_confirmation():
 
         # 2. Insert order items
         subtotal = totals["subtotal"]
-        discounted_subtotal = totals["discounted_subtotal"]
+        discountable_subtotal = max(
+            subtotal - totals["membership_discount"] - totals["applied_discount_amount"],
+            0
+        )
         sales_tax = totals["sales_tax"]
 
         order_items = []
@@ -479,7 +587,7 @@ def order_confirmation():
         for item in cart_items:
             line_subtotal = item["price"] * item["quantity"]
             line_ratio = (line_subtotal / subtotal) if subtotal > 0 else 0
-            line_amount = round(discounted_subtotal * line_ratio, 2)
+            line_amount = round(discountable_subtotal * line_ratio, 2)
             line_tax = round(sales_tax * line_ratio, 2)
 
             cursor.execute("""
@@ -544,9 +652,50 @@ def order_confirmation():
         if selected_level != current_level:
             cursor.execute("""
                 UPDATE Customer
-                SET Membership_Level = %s
+                SET Membership_Level = %s,
+                    Updated_At = UTC_TIMESTAMP()
                 WHERE Customer_ID = %s
             """, (selected_level, current_user.id))
+
+        # 5. Save shipping address to customer account if checkbox was checked
+        if save_address and address["Address_Line_l"] and address["City"] and address["State"] and address["Zip_Code"] and address["Country"]:
+            cursor.execute("""
+                SELECT Address_ID
+                FROM Customer_Address
+                WHERE Customer_ID = %s
+                  AND Address_Line_l = %s
+                  AND IFNULL(Address_Line_2, '') = %s
+                  AND City = %s
+                  AND State = %s
+                  AND Zip_Code = %s
+                  AND Country = %s
+                  AND Deleted_At IS NULL
+            """, (
+                current_user.id,
+                address["Address_Line_l"],
+                address["Address_Line_2"],
+                address["City"],
+                address["State"],
+                address["Zip_Code"],
+                address["Country"]
+            ))
+
+            existing_address = cursor.fetchone()
+
+            if not existing_address:
+                cursor.execute("""
+                    INSERT INTO Customer_Address
+                    (Address_Line_l, Address_Line_2, City, State, Zip_Code, Country, Customer_ID)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    address["Address_Line_l"],
+                    address["Address_Line_2"] or None,
+                    address["City"],
+                    address["State"],
+                    address["Zip_Code"],
+                    address["Country"],
+                    current_user.id
+                ))
 
         conn.commit()
 
@@ -558,6 +707,12 @@ def order_confirmation():
             "subtotal": totals["subtotal"],
             "membership_discount": totals["membership_discount"],
             "promo_discount": totals["promo_discount"],
+            "auto_discount": totals["auto_discount"],
+            "auto_discount_rate": totals["auto_discount_rate"],
+            "auto_deal_message": totals["auto_deal_message"],
+            "discount_choice": totals["discount_choice"],
+            "applied_discount_name": totals["applied_discount_name"],
+            "applied_discount_amount": totals["applied_discount_amount"],
             "membership_upgrade_cost": totals["membership_upgrade_cost"],
             "tax": totals["sales_tax"],
             "total_paid": totals["total"]
@@ -566,6 +721,7 @@ def order_confirmation():
         # Clear session
         session.pop("cart", None)
         session.pop("promo_code", None)
+        session.pop("discount_choice", None)
         session.pop("selected_membership_level", None)
 
         return render_template(

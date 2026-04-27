@@ -7,25 +7,40 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            background: #2E3440;
-        }
-
-        header {
-            background: #2E3440;
             padding: 20px;
-            text-align: center;
+            background: #2E3440;
         }
 
-        header h2 {
+        .page-header {
+            background: linear-gradient(135deg, #3B4252, #2E3440);
             color: #ECEFF4;
+            padding: 26px 20px;
+            border-radius: 12px;
+            margin: 0 auto 20px;
+            border: 1px solid #4C566A;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            max-width: 1200px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            color: #ECEFF4;
+            font-size: 44px;
+            font-weight: bold;
+        }
+
+        .page-header p {
             margin: 8px 0 0;
+            color: #E5E9F0;
+            font-size: 20px;
         }
 
         .logo {
-            max-width: 240px;
+            max-width: 220px;
             height: auto;
             display: block;
-            margin: 0 auto 10px;
+            margin: 0 auto 12px;
             background: #3B4252;
             border-radius: 50px;
         }
@@ -91,7 +106,8 @@
 
         input[type="text"],
         input[type="email"],
-        input[type="tel"] {
+        input[type="tel"],
+        select {
             width: 100%;
             box-sizing: border-box;
             background: #2E3440;
@@ -183,6 +199,11 @@
             font-size: 14px;
         }
 
+        .btn-signout:hover {
+            background: #5E81AC;
+            color: #ECEFF4;
+        }
+
         .info-row {
             display: flex;
             justify-content: space-between;
@@ -207,6 +228,21 @@
             padding: 3px 10px;
             border-radius: 20px;
             font-size: 13px;
+        }
+
+        .membership-box {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding: 15px;
+            background: #3B4252;
+            border: 1px solid #4C566A;
+            border-radius: 8px;
+        }
+
+        .membership-box p {
+            margin: 0 0 10px;
+            color: #D8DEE9;
+            font-size: 14px;
         }
 
         .address-card {
@@ -237,12 +273,52 @@
             border-top: 1px solid #4C566A;
             margin: 20px 0;
         }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 12px;
+            }
+
+            .page-header h1 {
+                font-size: 34px;
+            }
+
+            .page-header p {
+                font-size: 16px;
+            }
+
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                border-radius: 8px;
+                border-bottom: 1px solid #4C566A;
+            }
+
+            .tab-content {
+                border-radius: 8px;
+            }
+
+            .address-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-<header>
+
+<header class="page-header">
     <img src="{{ url_for('static', filename='elevate_retail_logo_4.png') }}" alt="Elevate Retail Logo" class="logo">
-    <h2>My Profile</h2>
+    <h1>My Profile</h1>
+    <p>Manage your account details, membership, and saved addresses.</p>
 </header>
 
 <div class="profile-container">
@@ -256,8 +332,8 @@
     {% endwith %}
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('info')">Account Info</button>
-        <button class="tab-btn" onclick="switchTab('addresses')">Addresses</button>
+        <button class="tab-btn active" onclick="switchTab('info', event)">Account Info</button>
+        <button class="tab-btn" onclick="switchTab('addresses', event)">Addresses</button>
     </div>
 
     <div id="tab-info" class="tab-content active">
@@ -270,6 +346,21 @@
         <div class="info-row">
             <span class="info-label">Member Since</span>
             <span>{{ customer.created_at.strftime('%B %d, %Y') }}</span>
+        </div>
+
+        <div class="membership-box">
+            <label><strong>Change Membership</strong></label>
+            <p>Downgrades update right away. Upgrades will add the price difference to your cart at checkout.</p>
+
+            <form action="{{ url_for('user.update_membership') }}" method="POST" onsubmit="return confirmMembershipChange()">
+                <select name="membership_level" id="membership_level">
+                    <option value="Bronze" {% if customer.membership_level == 'Bronze' %}selected{% endif %}>Bronze</option>
+                    <option value="Silver" {% if customer.membership_level == 'Silver' %}selected{% endif %}>Silver</option>
+                    <option value="Gold" {% if customer.membership_level == 'Gold' %}selected{% endif %}>Gold</option>
+                    <option value="Platinum" {% if customer.membership_level == 'Platinum' %}selected{% endif %}>Platinum</option>
+                </select>
+                <button type="submit" class="btn btn-save">Update Membership</button>
+            </form>
         </div>
 
         <hr class="divider">
@@ -351,7 +442,7 @@
 </div>
 
 <script>
-    function switchTab(name) {
+    function switchTab(name, event) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('tab-' + name).classList.add('active');
@@ -365,6 +456,24 @@
         else if (len <= 3) input.value = '(' + digits;
         else if (len <= 6) input.value = '(' + digits.slice(0, 3) + ') ' + digits.slice(3);
         else input.value = '(' + digits.slice(0, 3) + ') ' + digits.slice(3, 6) + '-' + digits.slice(6);
+    }
+
+    function confirmMembershipChange() {
+        const currentLevel = "{{ customer.membership_level }}";
+        const selectedLevel = document.getElementById("membership_level").value;
+
+        const prices = {
+            Bronze: 0,
+            Silver: 30,
+            Gold: 60,
+            Platinum: 100
+        };
+
+        if (prices[selectedLevel] > prices[currentLevel]) {
+            return confirm("Upgrading your membership will add the price difference to your cart at checkout. Continue?");
+        }
+
+        return true;
     }
 </script>
 </body>
