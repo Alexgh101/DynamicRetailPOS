@@ -648,6 +648,16 @@ def order_confirmation():
             datetime.now()
         ))
 
+        # 3.5 Update order from Pending to Paid after payment is confirmed
+        cursor.execute("""
+            UPDATE `Order`
+            SET Order_Status = %s
+            WHERE Order_ID = %s
+        """, (
+            "Paid",
+            order_id
+        ))
+
         # 4. Update membership level if upgraded
         if selected_level != current_level:
             cursor.execute("""
